@@ -10,7 +10,7 @@ enum TJSAMP;
 
 // Represents a rectangle to dim out in the image
 struct CDimRect {
-	CDimRect() {}
+	CDimRect() : Factor(0.0) {}
 	CDimRect(float fFactor, const CRect& rect) { Factor = fFactor; Rect = rect; }
 	float Factor; // between 0.0 and 1.0
 	CRect Rect;
