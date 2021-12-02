@@ -11,7 +11,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 // Calculates the LDC response LUT used to map mean brightness values to LDC correction
-// values. The curve is piecewise polynominal and has the form of a saddle.
+// values. The curve is piecewise poly-nominal and has the form of a saddle.
 static void CalculateLDCResponseLUT(uint8* pLUT) {
 	const float fExp = 2.5f;
 	float fDivisor = pow(127.5f, fExp - 1);
@@ -65,7 +65,7 @@ CLocalDensityCorr::CLocalDensityCorr(const CJPEGImage & image, bool bFullConstru
 	// Caution: If something is changed in this code, this breaks all existing image DBs
 
 	// Number of pixels to pick from the original image with point sampling and to be
-	// used as starting image for LDC. This image is then resampled by a factor of 4 in
+	// used as starting image for LDC. This image is then re-sampled by a factor of 4 in
 	// each dimension.
 	const int NUM_VALUES = 120000;
 
@@ -96,7 +96,7 @@ CLocalDensityCorr::CLocalDensityCorr(const CJPEGImage & image, bool bFullConstru
 	uint32 nIncY = (uint32)nHeight*65536/m_nPSIHeight;
 	int nLineSize = Helpers::DoPadding(nWidth * nChannels, 4);
 
-	// The subsampled image has 16 bits per channel and three line interleaved channels B, G, R
+	// The sub-sampled image has 16 bits per channel and three line interleaved channels B, G, R
 	m_pPointSampledImage = new uint16[m_nPSIWidth*m_nPSIHeight*3];
 
 	for (int j = 0; j < m_nPSIHeight; j++) {
@@ -223,7 +223,7 @@ void CLocalDensityCorr::CreateLDCMap() {
 	uint8 ldcResponseLUT[256];
 	CalculateLDCResponseLUT(ldcResponseLUT);
 
-	// now subsample the small image by factor 4 in each dimension
+	// now sub-sample the small image by factor 4 in each dimension
 	int nSumSunSetPixels = 0; // number of pixels with hue in sunset range
 	m_nLDCWidth = m_nPSIWidth/4;
 	m_nLDCHeight = m_nPSIHeight/4;
@@ -233,7 +233,7 @@ void CLocalDensityCorr::CreateLDCMap() {
 	uint8* pLDCImage = pLDCImageStart;
 	int nSubSampLineWidth = m_nLDCWidth * 2 * 3; // in 32 bit elements
 	for (int i = 0; i < m_nLDCHeight; i++) {
-		// note that we access the 16 bits/channel subsampled image using 32 bit pointers
+		// note that we access the 16 bits/channel sub-sampled image using 32 bit pointers
 		// and thus always reading 2 elements at once
 		uint32* pSubSampImage32 = (uint32*) m_pPointSampledImage + i * 4 * nSubSampLineWidth;
 		uint32* pCurrentRowSum = pLDCRowSum + i*3;

@@ -212,7 +212,7 @@ CPUType ProbeCPU(void) {
 #ifdef _WIN64
 	return ProbeSSEorAVX2(); // 64 bit always supports at least SSE
 #else
-	// Structured exception handling is mantatory, try/catch(...) does not catch such severe stuff.
+	// Structured exception handling is mandatory, try/catch(...) does not catch such severe stuff.
 	cpuType = CPU_Generic;
 	__try {
 		uint32 FeatureMask;
@@ -817,7 +817,7 @@ __int64 GetFileSize(LPCTSTR sPath) {
 	return fileSize;
 }
 
-// Gets the frame index of the next frame, depending on the index of the last image (relevant if the image is a multiframe image)
+// Gets the frame index of the next frame, depending on the index of the last image (relevant if the image is a multi-frame image)
 int GetFrameIndex(CJPEGImage* pImage, bool bNext, bool bPlayAnimation, bool & switchImage) {
 	bool isMultiFrame = pImage != NULL && pImage->NumberOfFrames() > 1;
 	bool isAnimation = pImage != NULL && pImage->IsAnimation();
@@ -851,7 +851,7 @@ int GetFrameIndex(CJPEGImage* pImage, bool bNext, bool bPlayAnimation, bool & sw
 	return nFrameIndex;
 }
 
-// Gets an index string of the form [a/b] for multiframe images, empty string for single frame images
+// Gets an index string of the form [a/b] for multi-frame images, empty string for single frame images
 CString GetMultiframeIndex(CJPEGImage* pImage) {
 	bool isMultiFrame = pImage != NULL && pImage->NumberOfFrames() > 1;
 	if (isMultiFrame && !pImage->IsAnimation()) {

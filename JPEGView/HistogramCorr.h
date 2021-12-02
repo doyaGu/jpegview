@@ -5,8 +5,8 @@ class CJPEGImage;
 // Histogram (R,G,B,Grey) of an image
 class CHistogram {
 public:
-	// If bUseOrigPixels is set to true, the original pixels (uncropped and not resized) are used.
-	// If bUseOrigPixels is set to false, the cropped and resized subrectangle is used.
+	// If bUseOrigPixels is set to true, the original pixels (un-cropped and not resized) are used.
+	// If bUseOrigPixels is set to false, the cropped and resized sub-rectangle is used.
 	CHistogram(const CJPEGImage & image, bool bUseOrigPixels);
 	// Create histogram of 32 bpp DIB
 	CHistogram(const void* pPixels, const CSize& size);
@@ -54,7 +54,7 @@ public:
 	// strength of histogram correction (black-white points), in 0 .. 1
 	static void SetContrastCorrectionStrength(float fStrength) { sm_ContrastCorrectionStrength = fStrength; }
 
-	// strenght of brightness correction in 0 .. 1
+	// strength of brightness correction in 0 .. 1
 	static void SetBrightnessCorrectionStrength(float fStrength) { sm_BrightnessCorrStrength = fStrength; }
 
 	// Calculate a three channel correction LUT for color and contrast correction given a histogram

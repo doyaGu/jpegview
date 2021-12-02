@@ -15,7 +15,7 @@
 
 using namespace Gdiplus;
 
-// static intializers
+// static initializers
 volatile int CImageLoadThread::m_curHandle = 0;
 
 /////////////////////////////////////////////////////////////////////////////////////////////
@@ -88,7 +88,7 @@ static CJPEGImage* ConvertGDIPlusBitmapToJPEGImage(Gdiplus::Bitmap* pBitmap, int
 
 	EImageFormat eImageFormat = GetBitmapFormat(pBitmap);
 
-	// Handle multiframe images.
+	// Handle multi-frame images.
 	// Note that only the first frame dimension is looked at, it is unclear if GDI+ anyway supports image formats with more dimensions
 	UINT nDimensions = pBitmap->GetFrameDimensionsCount();
 	GUID* pDimensionIDs = new GUID[nDimensions];
@@ -113,7 +113,7 @@ static CJPEGImage* ConvertGDIPlusBitmapToJPEGImage(Gdiplus::Bitmap* pBitmap, int
 	delete[] pDimensionIDs;
 
 	// If there is an alpha channel in the original file we must blit the image onto a background color offscreen
-	// bitmap first to archieve proper rendering.
+	// bitmap first to archive proper rendering.
 	CJPEGImage* pJPEGImage = NULL;
 	Gdiplus::PixelFormat pixelFormat = pBitmap->GetPixelFormat();
 	bool bHasAlphaChannel = (pixelFormat & (PixelFormatAlpha | PixelFormatPAlpha));
@@ -381,7 +381,7 @@ void CImageLoadThread::ProcessReadBMPRequest(CRequest * request) {
 	if (bOutOfMemory) {
 		request->OutOfMemory = true;
 	} else if (request->Image == NULL) {
-		// probabely one of the bitmap formats that can not be read directly, try with GDI+
+		// probably one of the bitmap formats that can not be read directly, try with GDI+
 		ProcessReadGDIPlusRequest(request);
 	}
 }

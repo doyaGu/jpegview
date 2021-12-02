@@ -42,7 +42,7 @@ __declspec(dllexport) bool __stdcall WICPresent(void) {
 	return wicPresent;
 }
 
-// Loads the given image file with WIC. Returns NULL if loading fails. Memory is allocated and deallocated by the
+// Loads the given image file with WIC. Returns NULL if loading fails. Memory is allocated and de-allocated by the
 // given function pointers be decouple from CRT version
 __declspec(dllexport) byte* __stdcall LoadImageWithWIC(LPCWSTR fileName, Allocator* allocator, Deallocator* deallocator,
 	unsigned int* width, unsigned int* height) {

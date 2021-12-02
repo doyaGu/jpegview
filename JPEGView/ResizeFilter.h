@@ -12,7 +12,7 @@ enum FilterSIMDType {
 struct FilterKernel {
 	int16 Kernel[MAX_FILTER_LEN]; // elements are fixed point numbers, typically with 2.14 format
 	int FilterLen; // actual filter length
-	int FilterOffset; // the offset is stored as a number >= 0 and must be subracted! from the calculated position to get the start position for applying the filter
+	int FilterOffset; // the offset is stored as a number >= 0 and must be subtracted! from the calculated position to get the start position for applying the filter
 };
 
 // Indexed block of filter kernels, assigning a filter kernel to indices [1..t], allowing sharing the same
@@ -33,7 +33,7 @@ struct XMMFilterKernel {
 	int FilterLen;
 	int FilterOffset;
 	int nPad1, nPad2; // padd to 16 bytes before kernel starts
-	XMMKernelElement Kernel[1]; // this is a placehoder for a kernel of FilterLen elements
+	XMMKernelElement Kernel[1]; // this is a placeholder for a kernel of FilterLen elements
 };
 
 struct XMMFilterKernelBlock {
@@ -53,7 +53,7 @@ struct AVXFilterKernel {
 	int FilterLen;
 	int FilterOffset;
 	int pad[6]; // padd to 32 bytes before kernel starts
-	AVXKernelElement Kernel[1]; // this is a placehoder for a kernel of FilterLen elements
+	AVXKernelElement Kernel[1]; // this is a placeholder for a kernel of FilterLen elements
 };
 
 struct AVXFilterKernelBlock {
@@ -80,7 +80,7 @@ public:
 	};
 
 	// Creates a filter for resizing from nSourceSize to nTargetSize 
-	// dSharpen must be in [0..0.5] - it is ignored for upsampling kernels.
+	// dSharpen must be in [0..0.5] - it is ignored for up-sampling kernels.
 	CResizeFilter(int nSourceSize, int nTargetSize, double dSharpen, EFilterType eFilter, FilterSIMDType filterSIMDType);
 	~CResizeFilter();
 
@@ -97,7 +97,7 @@ public:
 	// CResizeFilter must have been created with AVX2 support (FilterSIMDType_AVX)
 	const AVXFilterKernelBlock& GetAVXFilterKernels() const { assert(m_filterSIMDType == FilterSIMDType_AVX); return m_kernelsAVX; }
 
-	// Get bicubic filter kernels for fractional positions. These kernels have length 4 and must be applied with offset -1 to current integer position.
+	// Get bi-cubic filter kernels for fractional positions. These kernels have length 4 and must be applied with offset -1 to current integer position.
 	// E.g. when requesting 33 kernels, the kernel for fractional position 0.5 is starting at pKernels[4 * 16]
 	static void GetBicubicFilterKernels(int nNumKernels, int16* pKernels);
 

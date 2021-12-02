@@ -207,7 +207,7 @@ static void RegisterInMRU(LPCTSTR sRegMRUPath) {
 			}
 		}
 	}
-	// append another entry to the MRU list with JPEGView.exe
+	// Append another entry to the MRU list with JPEGView.exe
 	CString nextMRUEntry; // could not just cast CString(int), kept getting 
 	// https://stackoverflow.com/questions/12602526/how-can-i-convert-an-int-to-a-cstring
 	// error C2440: '<function-style-cast>': cannot convert from 'int' to 'ATL::CString'

@@ -33,7 +33,7 @@ namespace HelpersGUI {
 	// Selects the default GUI font into the given DC.
 	void SelectDefaultGUIFont(HDC dc);
 
-	// Selectes the default system font into the given DC.
+	// Selects the default system font into the given DC.
 	void SelectDefaultSystemFont(HDC dc);
 
 	// Selects the default file name font into the given DC.
@@ -49,7 +49,7 @@ namespace HelpersGUI {
 	void DrawRectangle(CDC & dc, const CRect& rect);
 
 	// Draws a 32 bit DIB centered in the given target area, filling the remaining area with the given brush
-	// The bmInfo struct will be initialized by this method and does not need to be preinitialized.
+	// The bmInfo struct will be initialized by this method and does not need to be pre-initialized.
 	// Return value is the top, left coordinate of the painted DIB in the target area
 	CPoint DrawDIB32bppWithBlackBorders(CDC& dc, BITMAPINFO& bmInfo, void* pDIBData, HBRUSH backBrush, const CRect& targetArea, CSize dibSize, CPoint offset);
 
@@ -63,10 +63,10 @@ namespace HelpersGUI {
 	// Draws an error text for the given file loading error (combination of EFileLoadError codes)
 	void DrawImageLoadErrorText(CDC& dc, const CRect& clientRect, LPCTSTR sFailedFileName, int nFileLoadError);
 
-	// Convert a menu item command ID to a transformation enumeration for lossless JPEG transformation
+	// Convert a menu item command ID to a transformation enumeration for loss-less JPEG transformation
 	CJPEGLosslessTransform::ETransformation CommandIdToLosslessTransformation(int nCommandId);
 
-	// Convert the error result code from lossless JPEG transformation to a string
+	// Convert the error result code from loss-less JPEG transformation to a string
 	LPCTSTR LosslessTransformationResultToString(CJPEGLosslessTransform::EResult eResult);
 
 	// Creates the submenu containing the user commands in hMenu, returns if there are any menu items

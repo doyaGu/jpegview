@@ -17,7 +17,7 @@ public:
 	// Display rectangle of monitor the main part of the given window is shown on
 	static CRect GetMonitorRect(HWND hWnd);
 
-	// Gets the working rectangle (monitor rectangle excluding taskbar) of the monitor the given window is displayed on
+	// Gets the working rectangle (monitor rectangle excluding task-bar) of the monitor the given window is displayed on
 	static CRect GetWorkingRect(HWND hWnd);
 
 	// Gets the default window rectangle for windowed mode

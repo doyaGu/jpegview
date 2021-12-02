@@ -38,7 +38,7 @@ public:
 	// No palette is given, the resulting image is black/white.
 	static void* Convert1To4Channels(int nWidth, int nHeight, const void* pPixels);
 
-	// Convert a 16 bpp single channel grayscale image to a 32 bpp BGRA DIB
+	// Convert a 16 bpp single channel gray-scale image to a 32 bpp BGRA DIB
 	static void* Convert16bppGrayTo32bppDIB(int nWidth, int nHeight, const int16* pPixels);
 
 	// Convert from a 3 channel image (24 bpp, BGR) to a 4 channel image (32 bpp DIB, BGRA)
@@ -75,9 +75,9 @@ public:
 
 	// Creates lookup tables for color saturation correction.
 	// dSaturation must be between 0 and 2
-	//  0: Grayscale image
+	//  0: Gray-scale image
 	//  1: Image unmodified
-	//  2: Image strongly staturated
+	//  2: Image strongly saturated
 	// Creates 6 * 256 int32 entries for the matrix elements of the saturation matrix. The elements are in 8.24 fixed point format.
 	static int32* CreateColorSaturationLUTs(double dSaturation);
 
@@ -98,11 +98,11 @@ public:
 	// Dim out a rectangle in the given 32 bpp BGRA DIB.
 	// Notice that dimming is done by modifying the BGR values, the A channel is set to fixed value 0xFF.
 	// fDimValue is the value to multiply with the B, G and R values (between 0.0 and 1.0)
-	// The method is inplace and changes the input DIB
+	// The method is in-place and changes the input DIB
 	static void DimRectangle32bpp(int nWidth, int nHeight, void* pDIBPixels, CRect rect, float fDimValue);
 
 	// Fills a rectangle in the 32 bpp BGRA DIB with the given color
-	// The method is inplace and changes the input DIB. Clipping of rect against DIB size is done.
+	// The method is in-place and changes the input DIB. Clipping of rect against DIB size is done.
 	// The A value in 'color' is ignored and set to fixed value 0xFF.
 	static void FillRectangle32bpp(int nWidth, int nHeight, void* pDIBPixels, CRect rect, COLORREF color);
 
@@ -125,16 +125,16 @@ public:
 	// pLUT: three channel LUT (BBBBB..., GGGGG..., RRRRRR..., 256 entries per channel)
 	// pLDCMap: LDC map, 8 bits per pixel, grayscale
 	// fBlackPt, fWhitePt: Black and white point of original unprocessed, unclipped image
-	// fBlackPtSteepness: Stepness of black point correction (0..1)
+	// fBlackPtSteepness: Steepness of black point correction (0..1)
 	static void* ApplyLDC32bpp(CSize fullTargetSize, CPoint fullTargetOffset, CSize clippedTargetSize,
 		CSize ldcMapSize, const void* pDIBPixels, const int32* pSatLUTs, const uint8* pLUT, const uint8* pLDCMap, 
 		float fBlackPt, float fWhitePt, float fBlackPtSteepness);
 
 	// Resize 32 or 24 bpp BGR(A) image using point sampling (i.e. no interpolation).
-	// Point sampling is fast but produces a lot of aliasing artefacts.
+	// Point sampling is fast but produces a lot of aliasing artifacts.
 	// Notice that the A channel is kept unchanged for 32 bpp images.
 	// Notice that the returned image is always 32 bpp!
-	// fullTargetSize: Virtual size of target image (unclipped).
+	// fullTargetSize: Virtual size of target image (un-clipped).
 	// fullTargetOffset: Offset for start of clipping window (in the region given by fullTargetSize)
 	// clippedTargetSize: Size of clipped window - returned DIB has this size
 	// sourceSize: Size of source image
@@ -144,7 +144,7 @@ public:
 	static void* PointSample(CSize fullTargetSize, CPoint fullTargetOffset, CSize clippedTargetSize, 
 		CSize sourceSize, const void* pPixels, int nChannels);
 
-	// Rotate 32 or 24 bpp BGR(A) image and resample using point sampling (i.e. no interpolation). Rotation is around image center.
+	// Rotate 32 or 24 bpp BGR(A) image and re-sample using point sampling (i.e. no interpolation). Rotation is around image center.
 	// Notice that the A channel is kept unchanged for 32 bpp images.
 	// Notice that the returned image is always 32 bpp!
 	// dRotation: Rotation angle in radians
@@ -154,7 +154,7 @@ public:
 	static void* PointSampleWithRotation(CSize fullTargetSize, CPoint fullTargetOffset, CSize clippedTargetSize, 
 		CSize sourceSize, double dRotation, const void* pPixels, int nChannels, COLORREF backColor);
 
-	// Resample 32 or 24 bpp BGR(A) image using point sampling (i.e. no interpolation) and map to trapezoid.
+	// Re-sample 32 or 24 bpp BGR(A) image using point sampling (i.e. no interpolation) and map to trapezoid.
 	// Notice that the A channel is kept unchanged for 32 bpp images.
 	// Notice that the returned image is always 32 bpp!
 	// fullTargetTrapezoid: Trapezoid, height must be fullTargetSize.cy.
@@ -165,12 +165,12 @@ public:
 	static void* PointSampleTrapezoid(CSize fullTargetSize, const CTrapezoid& fullTargetTrapezoid, CPoint fullTargetOffset, CSize clippedTargetSize, 
 		CSize sourceSize, const void* pPixels, int nChannels, COLORREF backColor);
 
-	// High quality downsampling of 32 or 24 bpp BGR(A) image to target size, using a set of down-sampling kernels that
+	// High quality down-sampling of 32 or 24 bpp BGR(A) image to target size, using a set of down-sampling kernels that
 	// do some sharpening during down-sampling if desired. 
 	// Notice that the A channel is not processed and set to fixed value 0xFF.
 	// Notice that the returned image is always 32 bpp!
 	// dSharpen: Amount of sharping to apply in [0, 1].
-	// eFilter: Filter to apply. Note that the filter type can only be one of the downsampling filter types.
+	// eFilter: Filter to apply. Note that the filter type can only be one of the down-sampling filter types.
 	// See PointSample() for other parameters
 	// Returns a 32 bpp BGRA DIB of size 'clippedTargetSize'
 	static void* SampleDown_HQ(CSize fullTargetSize, CPoint fullTargetOffset, CSize clippedTargetSize,
@@ -182,7 +182,7 @@ public:
 	static void* SampleDown_HQ_SIMD(CSize fullTargetSize, CPoint fullTargetOffset, CSize clippedTargetSize,
 		CSize sourceSize, const void* pPixels, int nChannels, double dSharpen, EFilterType eFilter, SIMDArchitecture simd);
 
-	// High quality upsampling of 32 or 24 bpp BGR(A) image using bicubic interpolation.
+	// High quality up-sampling of 32 or 24 bpp BGR(A) image using bi-cubic interpolation.
 	// Notice that the A channel is not processed and set to fixed value 0xFF.
 	// Notice that the returned image is always 32 bpp!
 	// See PointSample() for parameters
@@ -195,7 +195,7 @@ public:
 	static void* SampleUp_HQ_SIMD(CSize fullTargetSize, CPoint fullTargetOffset, CSize clippedTargetSize,
 		CSize sourceSize, const void* pPixels, int nChannels, SIMDArchitecture simd);
 
-	// Rotate 32 or 24 bpp BGR(A) image around image center using bicubic interpolation.
+	// Rotate 32 or 24 bpp BGR(A) image around image center using bi-cubic interpolation.
 	// Notice that the A channel is processed for 32 bpp images.
 	// Notice that the returned image is always 32 bpp!
 	// targetOffset: Offset for start of clipping window (in the region given by sourceSize)
@@ -209,7 +209,7 @@ public:
 	static void* RotateHQ(CPoint targetOffset, CSize targetSize, double dRotation, CSize sourceSize, 
 		const void* pSourcePixels, int nChannels, COLORREF backColor);
 
-	// Trapezoid correction (used for perspective correction) using bicubic interpolation of 32 or 24 bpp BGR(A) image.
+	// Trapezoid correction (used for perspective correction) using bi-cubic interpolation of 32 or 24 bpp BGR(A) image.
 	// This method is used for perspective correction.
 	// Notice that the A channel is not processed and set to fixed value 0xFF.
 	// Notice that the returned image is always 32 bpp!
@@ -230,11 +230,11 @@ public:
 
 	// Apply unsharp masking to the given source 32 or 24 bpp BGR(A) image and store result in pTargetPixels.
 	// Notice that the A channel is not processed and set to fixed value 0xFF.
-	// fullSize: Size of source image, target image and grayscale images (all must have the same size)
+	// fullSize: Size of source image, target image and gray-scale images (all must have the same size)
 	// offset, rect: Part of the source image to apply unsharp masking to. The area outside is not touched (also not copied to target image).
 	// dAmount, dThreshold: Unsharp masking parameters
-	// pGrayImage: Grayscale image, one channel, 16 bpp
-	// pSmoothedGrayImage: Smoothed grayscale image (having a Gauss kernel applied), one channel, 16 bpp
+	// pGrayImage: Gray-scale image, one channel, 16 bpp
+	// pSmoothedGrayImage: Smoothed gray-scale image (having a Gauss kernel applied), one channel, 16 bpp
 	// pSourcePixels: Source image
 	// pTargetPixels: Target image, can be same pointer as pSourcePixels
 	// nChannels: Number of channels (3 or 4) of source and target image

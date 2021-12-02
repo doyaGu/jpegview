@@ -29,11 +29,11 @@ public:
 	// pFileList: List of files, required for read-ahead. If NULL, no read-ahead will be done.
 	// eDirection: Read-ahead direction.
 	// strFileName: File name (with path) of the image to load and process. Typically pFileList->Current().
-	// nFrameIndex: Index of frame for multiframe images, zero otherwise.
+	// nFrameIndex: Index of frame for multi-frame images, zero otherwise.
 	// processParams: Parameters for processing the image.
 	// Return value
 	// Returns the processed JPEG image.
-	// The caller must not delete the retuned image but notify the provider when no longer used with NotifyNotUsed()
+	// The caller must not delete the returned image but notify the provider when no longer used with NotifyNotUsed()
 	// The CJPEGProvider class then decides whether to delete or to cache the image.
 	// Remarks
 	// When the requested image is already cached, it is returned immediately. Otherwise the method
@@ -71,7 +71,7 @@ private:
 	// stores a request for loading and processing a JPEG image
 	struct CImageRequest {
 		CString FileName; // file name with path of image
-		int FrameIndex; // zero based frame index for multiframe images
+		int FrameIndex; // zero based frame index for multi-frame images
 		CJPEGImage* Image; // loaded image
 		bool Ready; // true if the request has finished loading and the image is ready (if NULL, loading failed)
 		int Handle; // request handle used for that request in ImageLoadThread

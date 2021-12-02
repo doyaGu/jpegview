@@ -24,7 +24,7 @@
 static TCHAR s_TimingInfo[256];
 
 /////////////////////////////////////////////////////////////////////////////////////////////
-// Processing images stripwise on thread pool
+// Processing images strip-wise on thread pool
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 static void* SampleDown_HQ_MMX_SSE_Core(CSize fullTargetSize, CPoint fullTargetOffset, CSize clippedTargetSize,
@@ -61,7 +61,7 @@ static void* TrapezoidHQ_Core(CPoint targetOffset, CSize targetSize, const CTrap
 
 //---------------------------------------------------------------------------------------------
 
-// Request for upsampling or downsampling
+// Request for up-sampling or down-sampling
 class CRequestUpDownSampling : public CProcessingRequest {
 public:
 	CRequestUpDownSampling(const void* pSourcePixels, CSize sourceSize, void* pTargetPixels,
@@ -315,7 +315,7 @@ int32* CBasicProcessing::CreateColorSaturationLUTs(double dSaturation) {
 }
 
 int16* CBasicProcessing::Create1Channel16bppGrayscaleImage(int nWidth, int nHeight, const void* pDIBPixels, int nChannels) {
-	// Create LUTs for grayscale conversion
+	// Create LUTs for gray-scale conversion
 	const double cdScaler = 1 << 16; // 1.0 is represented as 2^16
 	uint32 LUTs[3 * 256];
 	for (int i = 0; i < 256; i++) {
@@ -448,7 +448,7 @@ void* ApplyLDC32bpp_Core(CSize fullTargetSize, CPoint fullTargetOffset, CSize di
 		uint32 nCurX = nStartX;
 		if (pSatLUTs == NULL) {
 			for (int i = 0; i < dibSize.cx; i++) {
-				// perform bilinear interpolation of mask
+				// perform bi-linear interpolation of mask
 				uint32 nCurXTrunc = nCurX >> 16;
 				uint32 nCurXFrac = nCurX & 0xFFFF;
 				uint32 nMaskTopLeft  = pLDCMapSrc[nCurXTrunc];
@@ -473,7 +473,7 @@ void* ApplyLDC32bpp_Core(CSize fullTargetSize, CPoint fullTargetOffset, CSize di
 			}
 		} else {
 			for (int i = 0; i < dibSize.cx; i++) {
-				// perform bilinear interpolation of mask
+				// perform bi-linear interpolation of mask
 				uint32 nCurXTrunc = nCurX >> 16;
 				uint32 nCurXFrac = nCurX & 0xFFFF;
 				uint32 nMaskTopLeft  = pLDCMapSrc[nCurXTrunc];
@@ -879,11 +879,11 @@ void* CBasicProcessing::PointSample(CSize fullTargetSize, CPoint fullTargetOffse
 
 	uint32 nIncrementX, nIncrementY;
 	if (fullTargetSize.cx <= sourceSize.cx) {
-		// Downsampling
+		// Down-sampling
 		nIncrementX = (uint32)(sourceSize.cx << 16)/fullTargetSize.cx + 1;
 		nIncrementY = (uint32)(sourceSize.cy << 16)/fullTargetSize.cy + 1;
 	} else {
-		// Upsampling
+		// Up-sampling
 		nIncrementX = (fullTargetSize.cx == 1) ? 0 : (uint32)((65536*(uint32)(sourceSize.cx - 1) + 65535)/(fullTargetSize.cx - 1));
 		nIncrementY = (fullTargetSize.cy == 1) ? 0 : (uint32)((65536*(uint32)(sourceSize.cy - 1) + 65535)/(fullTargetSize.cy - 1));
 	}
@@ -1009,9 +1009,9 @@ void* CBasicProcessing::PointSampleWithRotation(CSize fullTargetSize, CPoint ful
 	return pDIB;
 }
 
-// The prepective correction can be accelerated enourmously by taking into account that the projection
+// The perspective correction can be accelerated enormously by taking into account that the projection
 // rectangle is aligned to the camera plane (Doom engine did the same, only allowing horizontal floor and vertical walls)
-// We only have to precalculate a map for the intersection of the y-scanlines (pTableY, in 16.16 fixed point format)
+// We only have to pre-calculate a map for the intersection of the y-scanlines (pTableY, in 16.16 fixed point format)
 // The caller needs to delete the returned map when no longer needed
 static int* CalculateTrapezoidYIntersectionTable(const CTrapezoid& trapezoid, int nTableSize, int nSourceSizeY, int nTargetSizeY, int nOffsetInTargetSizeY) {
 	int* pTableY = new int[nTableSize];
@@ -1041,7 +1041,7 @@ static int* CalculateTrapezoidYIntersectionTable(const CTrapezoid& trapezoid, in
 		// Perspective correction needed, y-scanlines are not homogenous.
 		// The unknowns in the projection equation are found using the following conditions:
 		// pTable(y) = a/(y + c) + b
-		// The pole of the projection is at position H, respecively h - H (depending on the sign of the trapezoid)
+		// The pole of the projection is at position H, respectively h - H (depending on the sign of the trapezoid)
 		// -> This directly leads to: H + c = 0, thus c = -H, respectively c = H - h
 		// a and b are found using the following two border conditions:
 		// 0 = a/c + b
@@ -1060,13 +1060,13 @@ static int* CalculateTrapezoidYIntersectionTable(const CTrapezoid& trapezoid, in
 	} else {
 		int nIncrementY;
 		if (nTargetSizeY <= nSourceSizeY) {
-			// Downsampling
+			// Down-sampling
 			nIncrementY = (nSourceSizeY << 16)/nTargetSizeY + 1;
 		} else {
-			// Upsampling
+			// Up-sampling
 			nIncrementY = (nTargetSizeY == 1) ? 0 : ((65536*(uint32)(nSourceSizeY - 1) + 65535)/(nTargetSizeY - 1));
 		}
-		// only point resampling into a new rectangle, all y-scanlines have the same distance
+		// only point re-sampling into a new rectangle, all y-scanlines have the same distance
 		int nCurY = nOffsetInTargetSizeY*nIncrementY;
 		for (int j = 0; j < nTableSize; j++) {
 			pTableY[j] = nCurY;
@@ -1147,16 +1147,16 @@ void* CBasicProcessing::PointSampleTrapezoid(CSize fullTargetSize, const CTrapez
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
-// High quality rotation using bicubic sampling
+// High quality rotation using bi-cubic sampling
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 #define NUM_KERNELS_LOG2 6
 #define NUM_KERNELS_BICUBIC 65
 #define FP_HALF 8192
 
-// Bicubic resampling of one pixel at pSource (in 3 or 4 channel format) into one destination pixel in 32 bit format
+// Bi-cubic re-sampling of one pixel at pSource (in 3 or 4 channel format) into one destination pixel in 32 bit format
 // The fractional part of the pixel position is given in .16 fixed point format
-// pKernels contains NUM_KERNELS_BICUBIC precalculated bicubic filter kernels each of lenght 4, applied with offset -1 to the source pixels
+// pKernels contains NUM_KERNELS_BICUBIC pre-calculated bi-cubic filter kernels each of length 4, applied with offset -1 to the source pixels
 static void InterpolateBicubic(const uint8* pSource, uint8* pDest, int16* pKernels, int32 nFracX, int32 nFracY, int nPaddedSourceWidth, int nChannels) {
 	int16* pKernelX = &(pKernels[4*(nFracX >> (16 - NUM_KERNELS_LOG2))]);
 	int16* pKernelY = &(pKernels[4*(nFracY >> (16 - NUM_KERNELS_LOG2))]);
@@ -1320,7 +1320,7 @@ void* CBasicProcessing::RotateHQ(CPoint targetOffset, CSize targetSize, double d
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
-// High quality trapezoid correction using bicubic sampling
+// High quality trapezoid correction using bi-cubic sampling
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 static inline void Get4Pixels16(const uint16* pSrc, uint16 dest[4], int nFrom, int nTo, uint32 nFill) {
@@ -1331,10 +1331,10 @@ static inline void Get4Pixels16(const uint16* pSrc, uint16 dest[4], int nFrom, i
 	}
 }
 
-// Bicubic resampling of one pixel at pSource (in 3 or 4 channel format) into one destination pixel in 32 bit format
+// Bi-cubic re-sampling of one pixel at pSource (in 3 or 4 channel format) into one destination pixel in 32 bit format
 // Interpolates only in x-direction
 // The fractional part of the pixel position is given in .16 fixed point format
-// pKernels contains NUM_KERNELS_BICUBIC precalculated bicubic filter kernels each of lenght 4, applied with offset -1 to the source pixels
+// pKernels contains NUM_KERNELS_BICUBIC pre-calculated bi-cubic filter kernels each of length 4, applied with offset -1 to the source pixels
 static void InterpolateBicubicX(const uint16* pSource, uint8* pDest, int16* pKernels, int32 nFracX) {
 	int16* pKernelX = &(pKernels[4*(nFracX >> (16 - NUM_KERNELS_LOG2))]);
 	for (int i = 0; i < 3; i++) {
@@ -1367,7 +1367,7 @@ static void InterpolateBicubicBorderX(const uint16* pSource, uint8* pDest, int16
 	*pDest = 0xFF;
 }
 
-// Bicubic interpolation in y of one line in the image
+// Bi-cubic interpolation in y of one line in the image
 static void InterpolateBicubicY(const uint8* pSourcePixels, int nChannelsSource, int nPaddedSourceWidth, uint16* pTarget, int nPixelsPerLine, 
 								const int16* pKernels, 
 								int nCurY, int nCurYFrac, int nSizeY) {
@@ -1614,7 +1614,7 @@ int16* CBasicProcessing::GaussFilter16bpp1Channel(CSize fullSize, CPoint offset,
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
-// Bicubic resize (C++ implementation)
+// Bi-cubic resize (C++ implementation)
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 void* CBasicProcessing::SampleUp_HQ(CSize fullTargetSize, CPoint fullTargetOffset, CSize clippedTargetSize,
@@ -1636,7 +1636,7 @@ void* CBasicProcessing::SampleUp_HQ(CSize fullTargetSize, CPoint fullTargetOffse
 	uint32 nIncrementX = (uint32)(65536*(uint32)(nSourceWidth - 1)/(fullTargetSize.cx - 1));
 	uint32 nIncrementY = (uint32)(65536*(uint32)(nSourceHeight - 1)/(fullTargetSize.cy - 1));
 
-	// Caution: This code assumes a upsampling filter kernel of length 4, with a filter offset of 1
+	// Caution: This code assumes a up-sampling filter kernel of length 4, with a filter offset of 1
 	int nFirstY = max(0, int((uint32)(nIncrementY*fullTargetOffset.y) >> 16) - 1);
 	int nLastY = min(sourceSize.cy - 1, int(((uint32)(nIncrementY*(fullTargetOffset.y + nTargetHeight - 1)) >> 16) + 2));
 	int nTempTargetWidth = nLastY - nFirstY + 1;
@@ -1718,7 +1718,7 @@ void* CBasicProcessing::SampleDown_HQ(CSize fullTargetSize, CPoint fullTargetOff
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
-// High quality downsampling (Helpers for SSE and MMX implementation)
+// High quality down-sampling (Helpers for SSE and MMX implementation)
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 // Rotates a line of 'simdPixelsPerRegister' pixels from source to targt
@@ -1754,7 +1754,7 @@ inline static const int16* RotateLineToDIB(const int16* pSource, uint8* pTarget,
 	return pSource;
 }
 
-// Rotate a block in a CXMMImage. Blockwise rotation is needed because with normal
+// Rotate a block in a CXMMImage. Block-wise rotation is needed because with normal
 // rotation, trashing occurs, making rotation a very slow operation.
 // The input format is what the ResizeYCore() method outputs:
 // RRRRRRRRGGGGGGGGBBBBBBBB... (blocks of 'simdPixelsPerRegister' pixels of a channel).
@@ -2004,9 +2004,9 @@ static CXMMImage* ApplyFilter_SSE(int nSourceHeight, int nTargetHeight, int nWid
 #else
 // Apply filter in y direction in SSE
 // nSourceHeight: Height of source image, only here to match interface of C++ implementation
-// nTargetHeight: Height of target image after resampling
+// nTargetHeight: Height of target image after re-sampling
 // nWidth: Width of source image
-// nStartY_FP: 16.16 fixed point number, denoting the y-start subpixel coordinate
+// nStartY_FP: 16.16 fixed point number, denoting the y-start sub-pixel coordinate
 // nStartX: Start of filtering in x-direction (not an FP number)
 // nIncrementY_FP: 16.16 fixed point number, denoting the increment for the y coordinates
 // filter: filter to apply
@@ -2056,7 +2056,7 @@ startYLoop:
 		add ebx, nFilterOffset
 		mov ecx, pKernelIndexStart
 		mov ecx, [ecx + 4*ebx] // now the address of the XMM filter kernel to use is in ecx
-		mov ebx, [ecx] // filter lenght is in ebx
+		mov ebx, [ecx] // filter length is in ebx
 		mov edx, [ecx + 4] // filter offset is in edx
 		add ecx, 16 // ecx now on first filter element
 
@@ -2066,7 +2066,7 @@ startYLoop:
 
 		// For the row loop, the following register allocations are done.
 		// These registers are not touched in the pixel loop.
-		// EDX: Lenght of one row per channel, fixed
+		// EDX: Length of one row per channel, fixed
 		// ESI: Source pixel ptr for row loop
 		// EDI: Target pixel ptr for row loop
 		mov edx, nChannelLenBytes
@@ -2212,7 +2212,7 @@ startYLoop:
 		add ebx, nFilterOffset
 		mov ecx, pKernelIndexStart
 		mov ecx, [ecx + 4*ebx] // now the address of the XMM filter kernel to use is in ecx
-		mov ebx, [ecx] // filter lenght is in ebx
+		mov ebx, [ecx] // filter length is in ebx
 		mov edx, [ecx + 4] // filter offset is in edx
 		add ecx, 16  // ecx now on first filter element
 
@@ -2222,7 +2222,7 @@ startYLoop:
 
 		// For the row loop, the following register allocations are done.
 		// These registers are not touched in the pixel loop.
-		// EDX: Lenght of one row per channel, fixed
+		// EDX: Length of one row per channel, fixed
 		// ESI: Source pixel ptr for row loop
 		// EDI: Target pixel ptr for row loop
 		mov edx, nChannelLenBytes
@@ -2320,7 +2320,7 @@ FilterKernelLoop:
 #endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////
-// High quality down- and up-sampling (SIMD implementation)
+// High quality down-sampling and up-sampling (SIMD implementation)
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 void* SampleDown_HQ_MMX_SSE_Core(CSize fullTargetSize, CPoint fullTargetOffset, CSize clippedTargetSize,

@@ -157,7 +157,7 @@ public:
 	void SetText(LPCTSTR sText);
 	// gets the text of the text control
 	LPCTSTR GetText() { return m_sText; }
-	// gets the width of the text in pixels. In case of multiline, the returned size is the singleline size.
+	// gets the width of the text in pixels. In case of multiline, the returned size is the single-line size.
 	int GetTextLabelWidth() const { return m_textSize.cx; }
 	// gets the height of the text in pixels.
 	int GetTextLabelHeight() const { return m_textSize.cy; }
@@ -216,7 +216,7 @@ private:
 
 //-------------------------------------------------------------------------------------------------
 
-// Control for showing static text representing a clickable link to an URL
+// Control for showing static text representing a click-able link to an URL
 class CURLCtrl : public CTextCtrl {
 public:
 	CURLCtrl(CPanel* pPanel, LPCTSTR sText, LPCTSTR sURL, bool outlineText, void* pContext = NULL);

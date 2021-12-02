@@ -27,7 +27,7 @@ public:
 	// The nJPEGHash hash value gives a hash over the compressed JPEG pixels that uniquely identifies the
 	// JPEG image. It can be zero in which case a pixel based hash value is internally created.
 	// The image format is a hint about the original image format this image was created from.
-	// The bIsAnimation, nFrameIndex, nNumberOfFrames and nFrameTimeMs are used for multiframe images, e.g. animated GIFs.
+	// The bIsAnimation, nFrameIndex, nNumberOfFrames and nFrameTimeMs are used for multi-frame images, e.g. animated GIFs.
 	// Frame index is zero based and the frame time is given in milliseconds.
 	// The pLDC object is used internally only for thumbnail image creation to avoid duplication. In all other situations,
 	// its value must be NULL.
@@ -37,7 +37,7 @@ public:
 		CLocalDensityCorr* pLDC = NULL, bool bIsThumbnailImage = false, CRawMetadata* pRawMetadata = NULL);
 	~CJPEGImage(void);
 
-	// Gets resampled and processed 32 bpp DIB image (up or downsampled).
+	// Gets re-sampled and processed 32 bpp DIB image (up or down-sampled).
 	// Parameters:
 	// fullTargetSize: Full target size of resized image to render (without any clipping to actual clipping size)
 	// clippingSize: Sub-rectangle in fullTargetSize to render (the returned DIB has this size)
@@ -48,7 +48,7 @@ public:
 	// The returned DIB is a 32 bpp DIB (BGRA). Note that the returned pointer must not
 	// be deleted by the caller and is only valid until another call to GetDIB() is done, the CJPEGImage
 	// object is disposed or the Rotate(), Crop() or any other method affecting original pixels is called!
-	// Note: The method tries to satisfy consecuting requests as efficient as possible. Calling the GetDIB()
+	// Note: The method tries to satisfy consecution requests as efficient as possible. Calling the GetDIB()
 	// method multiple times with the same set of parameters will return the same image starting from the second
 	// call without doing image processing anymore.
 	void* GetDIB(CSize fullTargetSize, CSize clippingSize, CPoint targetOffset,
@@ -57,7 +57,7 @@ public:
 		return GetDIBInternal(fullTargetSize, clippingSize, targetOffset, imageProcParams, eProcFlags, NULL, NULL, 0.0, false, bNotUsed);
 	}
 
-	// Gets resampled and processed DIB image (up or downsampled), also including a low quality rotation.
+	// Gets re-sampled and processed DIB image (up or down-sampled), also including a low quality rotation.
 	// The rotation angle is specified in radians.
 	// PFLAG_HighQualityResampling must not be set when calling this method 
 	void* GetDIBRotated(CSize fullTargetSize, CSize clippingSize, CPoint targetOffset,
@@ -66,7 +66,7 @@ public:
 		return GetDIBInternal(fullTargetSize, clippingSize, targetOffset, imageProcParams, eProcFlags, NULL, NULL, dRotation, bShowGrid, bNotUsed);
 	}
 
-	// Gets resampled and processed DIB image (up or downsampled), including a low quality trapezoid transformation.
+	// Gets re-sampled and processed DIB image (up or down-sampled), including a low quality trapezoid transformation.
 	// PFLAG_HighQualityResampling must not be set when calling this method 
 	void* GetDIBTrapezoid(CSize fullTargetSize, CSize clippingSize, CPoint targetOffset,
 		const CImageProcessingParams & imageProcParams, EProcessingFlags eProcFlags, const CTrapezoid* pTrapezoid, bool bShowGrid) {
@@ -122,7 +122,7 @@ public:
 	bool Rotate(int nRotation);
 
 	// Rotate original pixels by given angle (in radians). The original pixels are replaced by this operation.
-	// If autocrop is enabled, the maximum rectangular area is cropped, else black borders are added to the image.
+	// If auto-crop is enabled, the maximum rectangular area is cropped, else black borders are added to the image.
 	// If keep aspect ratio is true, the aspect ratio of the cropped area is the same as the aspect ratio of the original image.
 	// In all cases the size of the image in pixels is changed by the rotation.
 	// Returns false if not enough memory is available to perform the operation.
@@ -160,7 +160,7 @@ public:
 	int InitOrigWidth() const { return m_nInitOrigWidth; }
 	int InitOrigHeight() const { return m_nInitOrigHeight; }
 
-	// Size of DIB - size of resampled section of the original image. If zero, no DIB is currently available.
+	// Size of DIB - size of re-sampled section of the original image. If zero, no DIB is currently available.
 	int DIBWidth() const { return m_ClippingSize.cx; }
 	int DIBHeight() const { return m_ClippingSize.cy; }
 
@@ -175,11 +175,11 @@ public:
 	TJSAMP GetJPEGChromoSampling() { return m_eJPEGChromoSampling; }
 	void SetJPEGChromoSampling(TJSAMP eSampling) { m_eJPEGChromoSampling = eSampling; }
 
-	// Gets if lossless JPEG transformations can be applied to this image.
+	// Gets if loss-less JPEG transformations can be applied to this image.
 	// Checks if this is a JPEG image and if the dimension of this image is dividable by the JPEG block size used.
 	bool CanUseLosslessJPEGTransformations();
 
-	// Trims the given rectangle to MCU block size of this image (allowing lossless JPEG transformations)
+	// Trims the given rectangle to MCU block size of this image (allowing loss-less JPEG transformations)
 	void TrimRectToMCUBlockSize(CRect& rect);
 
 	// Declare the cached DIB as invalid - forcing it to be regenerated on next GetDIB() call
@@ -252,7 +252,7 @@ public:
 	// Gets the processing parameters and flags according to param DB or file path.
 	void GetFileParams(LPCTSTR sFileName, EProcessingFlags& eFlags, CImageProcessingParams& params) const;
 
-	// To be called after creation of the object to intialize the initial processing parameters.
+	// To be called after creation of the object to initialize the initial processing parameters.
 	// Input are the global defaults for the processing parameters, output (in pParams) are the
 	// processing parameters for this file (maybe different from the global ones)
 	void SetFileDependentProcessParams(LPCTSTR sFileName, CProcessParams* pParams);
@@ -272,7 +272,7 @@ public:
 	// Gets if zoom and offset values are stored for this image in the parameter DB
 	bool HasZoomStoredInParamDB() const { return m_bHasZoomStoredInParamDB; }
 
-	// Gets the factor to lighten shadows based on sunset and nightshot detection
+	// Gets the factor to lighten shadows based on sunset and night-shot detection
 	float GetLightenShadowFactor() { return m_fLightenShadowFactor; }
 
 	// Gets the EXIF data block (including the APP1 marker in the first two bytes) of the image. Returns NULL if none.
@@ -295,10 +295,10 @@ public:
 	// Gets if this image is part of an animation (animated GIF)
 	bool IsAnimation() const { return m_bIsAnimation; }
 
-	// Gets the frame index if this is a multiframe image, 0 otherwise
+	// Gets the frame index if this is a multi-frame image, 0 otherwise
 	int FrameIndex() const { return m_nFrameIndex; }
 
-	// Gets the number of frames for multiframe images, 1 otherwise
+	// Gets the number of frames for multi-frame images, 1 otherwise
 	int NumberOfFrames() const { return m_nNumberOfFrames; }
 
 	// Gets the frame time in milliseconds for animations (animated GIF)
@@ -326,7 +326,7 @@ public:
 	// Debug: Returns if this could be a sun set (heuristic, between 0 and 1)
 	float IsSunset() const;
 
-	// Debug: Ticks (millseconds) of the last operation
+	// Debug: Ticks (milliseconds) of the last operation
 	double LastOpTickCount() const { return m_dLastOpTickCount; }
 
 	// Debug: Loading time of image in ms
@@ -360,7 +360,7 @@ private:
 	EImageFormat m_eImageFormat;
 	TJSAMP m_eJPEGChromoSampling;
 
-	// multiframe and GIF animation related data
+	// multi-frame and GIF animation related data
 	bool m_bIsAnimation;
 	int m_nFrameIndex;
 	int m_nNumberOfFrames;
@@ -447,16 +447,16 @@ private:
 						 const CUnsharpMaskParams * pUnsharpMaskParams, const CTrapezoid * pTrapezoid, 
 						 double dRotation, bool bShowGrid, bool& bParametersChanged);
 
-	// Resample when panning was done, using existing data in DIBs. Old clipping rectangle is given in oldClippingRect
+	// Re-sample when panning was done, using existing data in DIBs. Old clipping rectangle is given in oldClippingRect
 	void ResampleWithPan(void* & pDIBPixels, void* & pDIBPixelsLUTProcessed, CSize fullTargetSize, 
 		CSize clippingSize, CPoint targetOffset, CRect oldClippingRect,
 		EProcessingFlags eProcFlags, const CImageProcessingParams & imageProcParams, double dRotation, EResizeType eResizeType);
 
-	// Resample to given target size. Returns resampled DIB
+	// Re-sample to given target size. Returns re-sampled DIB
 	void* Resample(CSize fullTargetSize, CSize clippingSize, CPoint targetOffset, 
 		EProcessingFlags eProcFlags, double dSharpen, double dRotation, EResizeType eResizeType);
 
-	// Resize to given target size. Returns resampled DIB. Used when resizing original pixels.
+	// Resize to given target size. Returns re-sampled DIB. Used when resizing original pixels.
 	void* InternalResize(void* pixels, int channels, EResizeFilter filter, CSize targetSize, CSize sourceSize);
 
 	// Apply the given unsharp mask to m_pDIBPixels (can be null to not apply an unsharp mask, then NULL is returned)
@@ -491,7 +491,7 @@ private:
 	// Gets the new size of the image after doing a free rotation
 	static CSize GetSizeAfterFreeRotation(const CSize& sourceSize, double dRotation, bool bAutoCrop, bool bKeepAspectRatio, CPoint & offset);
 
-	// Get if from source to target size it is down or upsampling
+	// Get if from source to target size it is down or up-sampling
 	EResizeType GetResizeType(CSize targetSize, CSize sourceSize);
 
 	// Gets the rotation from EXIF if available

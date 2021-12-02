@@ -33,7 +33,7 @@ public:
 	// posted to the given window's message queue when loading is finished and the given event is signaled (if not NULL).
 	// Returns identifier to query for resulting image. The query can be done as soon as the message is
 	// received or the event has been signaled.
-	// The file to load is given by its filename (with path) and the frame index (for multiframe images). The
+	// The file to load is given by its filename (with path) and the frame index (for multi-frame images). The
 	// frame index needs to be zero when the image only has one frame.
 	int AsyncLoad(LPCTSTR strFileName, int nFrameIndex, const CProcessParams & processParams, HWND targetWnd, HANDLE eventFinished);
 

@@ -24,8 +24,8 @@ enum EFilterType {
 enum EResizeFilter {
 	Resize_PointFilter,  // Point sampling
 	Resize_NoAliasing,   // Lanczos filter
-	Resize_SharpenLow,   // 3 tap downsampling filter with some sharpening
-	Resize_SharpenMedium // 3 tap downsampling filter with medium sharpening
+	Resize_SharpenLow,   // 3 tap down-sampling filter with some sharpening
+	Resize_SharpenMedium // 3 tap down-sampling filter with medium sharpening
 };
 
 // Image formats (can be other than JPEG...)

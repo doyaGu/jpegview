@@ -284,7 +284,7 @@ void CJPEGProvider::RemoveUnusedImages(bool bRemoveAlsoActiveRequests) {
 				if ((*iter)->AccessTimeStamp < nSmallestTimeStamp) {
 					nSmallestTimeStamp = (*iter)->AccessTimeStamp;
 				}
-				// remove the readahead images - if we get here with read ahead, the strategy was wrong and
+				// remove the read-ahead images - if we get here with read ahead, the strategy was wrong and
 				// the read ahead image is not used.
 				if ((*iter)->AccessTimeStamp == nTimeStampToRemove || IsDestructivelyProcessed((*iter)->Image)) {
 					::OutputDebugString(_T("Delete request: ")); ::OutputDebugString((*iter)->FileName); ::OutputDebugString(_T("\n"));
@@ -295,7 +295,7 @@ void CJPEGProvider::RemoveUnusedImages(bool bRemoveAlsoActiveRequests) {
 			}
 		}
 		nTimeStampToRemove = -2;
-		// Make one buffer free for next readahead (except when bRemoveAlsoActiveRequests)
+		// Make one buffer free for next read-ahead (except when bRemoveAlsoActiveRequests)
 		int nMaxListSize = bRemoveAlsoActiveRequests ? (unsigned int)m_nNumBuffers : (unsigned int)m_nNumBuffers - 1;
 		if (m_requestList.size() > (unsigned int)nMaxListSize) {
 			// remove element with smallest timestamp

@@ -216,7 +216,7 @@ CJPEGImage* CReaderTGA::ReadTgaImage(LPCTSTR strFileName, COLORREF backgroundCol
 			unsigned short pixel = 0;
 			int r=0, g=0, b=0;
 
-			// Since we convert 16-bit images to 24 bit, we hardcode the channels to 3.
+			// Since we convert 16-bit images to 24 bit, we hard-code the channels to 3.
 			// We then calculate the stride and allocate memory for the pixels.
 			channels = 3;
 			stride = channels * width;
@@ -360,7 +360,7 @@ CJPEGImage* CReaderTGA::ReadTgaImage(LPCTSTR strFileName, COLORREF backgroundCol
 	// Close the file pointer that opened the file
 	fclose(pFile);
 
-	// If image needs to be flipped, do this inplace
+	// If image needs to be flipped, do this in-place
 	if (flipVertically)
 	{
 		CBasicProcessing::MirrorVInplace(width, height, targetStride, pImageData);
