@@ -144,7 +144,7 @@ public:
 	static void* PointSample(CSize fullTargetSize, CPoint fullTargetOffset, CSize clippedTargetSize, 
 		CSize sourceSize, const void* pPixels, int nChannels);
 
-	// Rotate 32 or 24 bpp BGR(A) image and re-sample using point sampling (i.e. no interpolation). Rotation is around image center.
+	// Rotate 32 or 24 bpp BGR(A) image and resample using point sampling (i.e. no interpolation). Rotation is around image center.
 	// Notice that the A channel is kept unchanged for 32 bpp images.
 	// Notice that the returned image is always 32 bpp!
 	// dRotation: Rotation angle in radians
@@ -154,7 +154,7 @@ public:
 	static void* PointSampleWithRotation(CSize fullTargetSize, CPoint fullTargetOffset, CSize clippedTargetSize, 
 		CSize sourceSize, double dRotation, const void* pPixels, int nChannels, COLORREF backColor);
 
-	// Re-sample 32 or 24 bpp BGR(A) image using point sampling (i.e. no interpolation) and map to trapezoid.
+	// Resample 32 or 24 bpp BGR(A) image using point sampling (i.e. no interpolation) and map to trapezoid.
 	// Notice that the A channel is kept unchanged for 32 bpp images.
 	// Notice that the returned image is always 32 bpp!
 	// fullTargetTrapezoid: Trapezoid, height must be fullTargetSize.cy.
@@ -165,12 +165,12 @@ public:
 	static void* PointSampleTrapezoid(CSize fullTargetSize, const CTrapezoid& fullTargetTrapezoid, CPoint fullTargetOffset, CSize clippedTargetSize, 
 		CSize sourceSize, const void* pPixels, int nChannels, COLORREF backColor);
 
-	// High quality down-sampling of 32 or 24 bpp BGR(A) image to target size, using a set of down-sampling kernels that
-	// do some sharpening during down-sampling if desired. 
+	// High quality downsampling of 32 or 24 bpp BGR(A) image to target size, using a set of downsampling kernels that
+	// do some sharpening during downsampling if desired. 
 	// Notice that the A channel is not processed and set to fixed value 0xFF.
 	// Notice that the returned image is always 32 bpp!
 	// dSharpen: Amount of sharping to apply in [0, 1].
-	// eFilter: Filter to apply. Note that the filter type can only be one of the down-sampling filter types.
+	// eFilter: Filter to apply. Note that the filter type can only be one of the downsampling filter types.
 	// See PointSample() for other parameters
 	// Returns a 32 bpp BGRA DIB of size 'clippedTargetSize'
 	static void* SampleDown_HQ(CSize fullTargetSize, CPoint fullTargetOffset, CSize clippedTargetSize,
@@ -182,7 +182,7 @@ public:
 	static void* SampleDown_HQ_SIMD(CSize fullTargetSize, CPoint fullTargetOffset, CSize clippedTargetSize,
 		CSize sourceSize, const void* pPixels, int nChannels, double dSharpen, EFilterType eFilter, SIMDArchitecture simd);
 
-	// High quality up-sampling of 32 or 24 bpp BGR(A) image using bi-cubic interpolation.
+	// High quality upsampling of 32 or 24 bpp BGR(A) image using bicubic interpolation.
 	// Notice that the A channel is not processed and set to fixed value 0xFF.
 	// Notice that the returned image is always 32 bpp!
 	// See PointSample() for parameters
@@ -195,7 +195,7 @@ public:
 	static void* SampleUp_HQ_SIMD(CSize fullTargetSize, CPoint fullTargetOffset, CSize clippedTargetSize,
 		CSize sourceSize, const void* pPixels, int nChannels, SIMDArchitecture simd);
 
-	// Rotate 32 or 24 bpp BGR(A) image around image center using bi-cubic interpolation.
+	// Rotate 32 or 24 bpp BGR(A) image around image center using bicubic interpolation.
 	// Notice that the A channel is processed for 32 bpp images.
 	// Notice that the returned image is always 32 bpp!
 	// targetOffset: Offset for start of clipping window (in the region given by sourceSize)
@@ -209,7 +209,7 @@ public:
 	static void* RotateHQ(CPoint targetOffset, CSize targetSize, double dRotation, CSize sourceSize, 
 		const void* pSourcePixels, int nChannels, COLORREF backColor);
 
-	// Trapezoid correction (used for perspective correction) using bi-cubic interpolation of 32 or 24 bpp BGR(A) image.
+	// Trapezoid correction (used for perspective correction) using bicubic interpolation of 32 or 24 bpp BGR(A) image.
 	// This method is used for perspective correction.
 	// Notice that the A channel is not processed and set to fixed value 0xFF.
 	// Notice that the returned image is always 32 bpp!

@@ -80,7 +80,7 @@ public:
 	};
 
 	// Creates a filter for resizing from nSourceSize to nTargetSize 
-	// dSharpen must be in [0..0.5] - it is ignored for up-sampling kernels.
+	// dSharpen must be in [0..0.5] - it is ignored for upsampling kernels.
 	CResizeFilter(int nSourceSize, int nTargetSize, double dSharpen, EFilterType eFilter, FilterSIMDType filterSIMDType);
 	~CResizeFilter();
 
@@ -97,7 +97,7 @@ public:
 	// CResizeFilter must have been created with AVX2 support (FilterSIMDType_AVX)
 	const AVXFilterKernelBlock& GetAVXFilterKernels() const { assert(m_filterSIMDType == FilterSIMDType_AVX); return m_kernelsAVX; }
 
-	// Get bi-cubic filter kernels for fractional positions. These kernels have length 4 and must be applied with offset -1 to current integer position.
+	// Get bicubic filter kernels for fractional positions. These kernels have length 4 and must be applied with offset -1 to current integer position.
 	// E.g. when requesting 33 kernels, the kernel for fractional position 0.5 is starting at pKernels[4 * 16]
 	static void GetBicubicFilterKernels(int nNumKernels, int16* pKernels);
 

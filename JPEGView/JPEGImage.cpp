@@ -913,14 +913,14 @@ void* CJPEGImage::GetDIBInternal(CSize fullTargetSize, CSize clippingSize, CPoin
 		eProcFlags = SetProcessingFlag(eProcFlags, PFLAG_LDC, false); // not supported during rotation or trapezoid processing with low quality
 	}
 
-	// Check if re-sampling due to bHighQualityResampling parameter change is needed
+	// Check if resampling due to bHighQualityResampling parameter change is needed
 	bool bMustResampleQuality = GetProcessingFlag(eProcFlags, PFLAG_HighQualityResampling) != GetProcessingFlag(m_eProcFlags, PFLAG_HighQualityResampling);
 	bool bTargetSizeChanged = fullTargetSize != m_FullTargetSize;
 	bool bMustResampleRotation = fabs(dRotation - m_dRotationLQ) > 1e-6;
 	bool bMustResampleTrapezoid = (m_bTrapezoidValid != (pTrapezoid != NULL)) || ((pTrapezoid != NULL) && *pTrapezoid != m_trapezoid);
-	// Check if re-sampling due to change of geometric parameters is needed
+	// Check if resampling due to change of geometric parameters is needed
 	bool bMustResampleGeometry = bTargetSizeChanged || clippingSize != m_ClippingSize || targetOffset != m_TargetOffset || bMustResampleRotation || bMustResampleTrapezoid;
-	// Check if re-sampling due to change of processing parameters is needed
+	// Check if resampling due to change of processing parameters is needed
 	bool bMustResampleProcessings = fabs(imageProcParams.Sharpen - m_imageProcParams.Sharpen) > 1e-2 && GetProcessingFlag(eProcFlags, PFLAG_HighQualityResampling);
 	bool bShowGridChanged = m_bShowGrid != bShowGrid;
 
@@ -944,7 +944,7 @@ void* CJPEGImage::GetDIBInternal(CSize fullTargetSize, CSize clippingSize, CPoin
 		m_pLastDIB = NULL;
 	}
 
-	// Check if only the LUT must be reapplied but no re-sampling (re-sampling is much slower than the LUTs)
+	// Check if only the LUT must be reapplied but no resampling (resampling is much slower than the LUTs)
 	void * pDIB = NULL;
 	void * pDIBUnsharpMasked = NULL;
 	if (!bMustResampleQuality && !bMustResampleGeometry && !bMustResampleProcessings) {
@@ -968,7 +968,7 @@ void* CJPEGImage::GetDIBInternal(CSize fullTargetSize, CSize clippingSize, CPoin
 
 		assert(pDIBUnsharpMasked == NULL);
 
-		// If we only pan, we can re-sample far more efficiently by only calculating the newly visible areas
+		// If we only pan, we can resample far more efficiently by only calculating the newly visible areas
 		bool bPanningOnly = !m_bFirstReprocessing && !bMustResampleProcessings && !bTargetSizeChanged && !bMustResampleQuality && 
 			!bMustResampleRotation && !bShowGrid && pTrapezoid == NULL;
 		m_bFirstReprocessing = false;
@@ -984,7 +984,7 @@ void* CJPEGImage::GetDIBInternal(CSize fullTargetSize, CSize clippingSize, CPoin
 			delete[] m_pSmoothGrayImage; m_pSmoothGrayImage = NULL;
 		}
 
-		// both DIBs are NULL, do normal re-sampling
+		// both DIBs are NULL, do normal resampling
 		if (m_pDIBPixels == NULL && m_pDIBPixelsLUTProcessed == NULL) {
 			if (pTrapezoid == NULL) {
 				m_pDIBPixels = Resample(fullTargetSize, clippingSize, targetOffset, eProcFlags, imageProcParams.Sharpen, dRotation, eResizeType);
@@ -1019,7 +1019,7 @@ void* CJPEGImage::GetDIBInternal(CSize fullTargetSize, CSize clippingSize, CPoin
 	} else {
 		m_bUnsharpMaskParamsValid = false;
 	}
-	// do not touch sharpen parameter if no re-sampling done - avoids cumulative error propagation
+	// do not touch sharpen parameter if no resampling done - avoids cumulative error propagation
 	if (!bMustResampleProcessings) {
 		m_imageProcParams.Sharpen = dOldSharpen;
 	}

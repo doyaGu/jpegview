@@ -46,7 +46,7 @@ private:
 	uint8 lightenShadowSteepness;
 	uint8 colorCorrection;
 	uint8 contrastCorrection;
-	uint8 flags; // bit 0: AutoContrast, bit 1:LDC, bit 2: HQ re-sampling, bit 3,4: Rotation, bit 5: ScreenAsRef, bit 6: Auto crop after free rotation, bit 7: Keep aspect ratio after free rotation
+	uint8 flags; // bit 0: AutoContrast, bit 1:LDC, bit 2: HQ resampling, bit 3,4: Rotation, bit 5: ScreenAsRef, bit 6: Auto crop after free rotation, bit 7: Keep aspect ratio after free rotation
 	uint8 colorCorrectionAmount[6]; // this equals the INI setting at creation time of DB entry
 	int16 zoomRectLeft;
 	int16 zoomRectTop;

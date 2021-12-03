@@ -91,7 +91,7 @@ void* CXMMImage::ConvertToDIBRGBA() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 
 void CXMMImage::Init(int nWidth, int nHeight, bool bPadHeight, int padding) {
-	// pad scan-lines
+	// pad scanlines
 	m_nPaddedWidth = Helpers::DoPadding(nWidth, padding);
 	if (bPadHeight) {
 		m_nPaddedHeight = Helpers::DoPadding(nHeight, padding);

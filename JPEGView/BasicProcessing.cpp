@@ -61,7 +61,7 @@ static void* TrapezoidHQ_Core(CPoint targetOffset, CSize targetSize, const CTrap
 
 //---------------------------------------------------------------------------------------------
 
-// Request for up-sampling or down-sampling
+// Request for upsampling or downsampling
 class CRequestUpDownSampling : public CProcessingRequest {
 public:
 	CRequestUpDownSampling(const void* pSourcePixels, CSize sourceSize, void* pTargetPixels,
@@ -879,11 +879,11 @@ void* CBasicProcessing::PointSample(CSize fullTargetSize, CPoint fullTargetOffse
 
 	uint32 nIncrementX, nIncrementY;
 	if (fullTargetSize.cx <= sourceSize.cx) {
-		// Down-sampling
+		// Downsampling
 		nIncrementX = (uint32)(sourceSize.cx << 16)/fullTargetSize.cx + 1;
 		nIncrementY = (uint32)(sourceSize.cy << 16)/fullTargetSize.cy + 1;
 	} else {
-		// Up-sampling
+		// Upsampling
 		nIncrementX = (fullTargetSize.cx == 1) ? 0 : (uint32)((65536*(uint32)(sourceSize.cx - 1) + 65535)/(fullTargetSize.cx - 1));
 		nIncrementY = (fullTargetSize.cy == 1) ? 0 : (uint32)((65536*(uint32)(sourceSize.cy - 1) + 65535)/(fullTargetSize.cy - 1));
 	}
@@ -1060,13 +1060,13 @@ static int* CalculateTrapezoidYIntersectionTable(const CTrapezoid& trapezoid, in
 	} else {
 		int nIncrementY;
 		if (nTargetSizeY <= nSourceSizeY) {
-			// Down-sampling
+			// Downsampling
 			nIncrementY = (nSourceSizeY << 16)/nTargetSizeY + 1;
 		} else {
-			// Up-sampling
+			// Upsampling
 			nIncrementY = (nTargetSizeY == 1) ? 0 : ((65536*(uint32)(nSourceSizeY - 1) + 65535)/(nTargetSizeY - 1));
 		}
-		// only point re-sampling into a new rectangle, all y-scanlines have the same distance
+		// only point resampling into a new rectangle, all y-scanlines have the same distance
 		int nCurY = nOffsetInTargetSizeY*nIncrementY;
 		for (int j = 0; j < nTableSize; j++) {
 			pTableY[j] = nCurY;
@@ -1147,16 +1147,16 @@ void* CBasicProcessing::PointSampleTrapezoid(CSize fullTargetSize, const CTrapez
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
-// High quality rotation using bi-cubic sampling
+// High quality rotation using bicubic sampling
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 #define NUM_KERNELS_LOG2 6
 #define NUM_KERNELS_BICUBIC 65
 #define FP_HALF 8192
 
-// Bi-cubic re-sampling of one pixel at pSource (in 3 or 4 channel format) into one destination pixel in 32 bit format
+// Bi-cubic resampling of one pixel at pSource (in 3 or 4 channel format) into one destination pixel in 32 bit format
 // The fractional part of the pixel position is given in .16 fixed point format
-// pKernels contains NUM_KERNELS_BICUBIC pre-calculated bi-cubic filter kernels each of length 4, applied with offset -1 to the source pixels
+// pKernels contains NUM_KERNELS_BICUBIC pre-calculated bicubic filter kernels each of length 4, applied with offset -1 to the source pixels
 static void InterpolateBicubic(const uint8* pSource, uint8* pDest, int16* pKernels, int32 nFracX, int32 nFracY, int nPaddedSourceWidth, int nChannels) {
 	int16* pKernelX = &(pKernels[4*(nFracX >> (16 - NUM_KERNELS_LOG2))]);
 	int16* pKernelY = &(pKernels[4*(nFracY >> (16 - NUM_KERNELS_LOG2))]);
@@ -1320,7 +1320,7 @@ void* CBasicProcessing::RotateHQ(CPoint targetOffset, CSize targetSize, double d
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
-// High quality trapezoid correction using bi-cubic sampling
+// High quality trapezoid correction using bicubic sampling
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 static inline void Get4Pixels16(const uint16* pSrc, uint16 dest[4], int nFrom, int nTo, uint32 nFill) {
@@ -1331,10 +1331,10 @@ static inline void Get4Pixels16(const uint16* pSrc, uint16 dest[4], int nFrom, i
 	}
 }
 
-// Bi-cubic re-sampling of one pixel at pSource (in 3 or 4 channel format) into one destination pixel in 32 bit format
+// Bi-cubic resampling of one pixel at pSource (in 3 or 4 channel format) into one destination pixel in 32 bit format
 // Interpolates only in x-direction
 // The fractional part of the pixel position is given in .16 fixed point format
-// pKernels contains NUM_KERNELS_BICUBIC pre-calculated bi-cubic filter kernels each of length 4, applied with offset -1 to the source pixels
+// pKernels contains NUM_KERNELS_BICUBIC pre-calculated bicubic filter kernels each of length 4, applied with offset -1 to the source pixels
 static void InterpolateBicubicX(const uint16* pSource, uint8* pDest, int16* pKernels, int32 nFracX) {
 	int16* pKernelX = &(pKernels[4*(nFracX >> (16 - NUM_KERNELS_LOG2))]);
 	for (int i = 0; i < 3; i++) {
@@ -1636,7 +1636,7 @@ void* CBasicProcessing::SampleUp_HQ(CSize fullTargetSize, CPoint fullTargetOffse
 	uint32 nIncrementX = (uint32)(65536*(uint32)(nSourceWidth - 1)/(fullTargetSize.cx - 1));
 	uint32 nIncrementY = (uint32)(65536*(uint32)(nSourceHeight - 1)/(fullTargetSize.cy - 1));
 
-	// Caution: This code assumes a up-sampling filter kernel of length 4, with a filter offset of 1
+	// Caution: This code assumes a upsampling filter kernel of length 4, with a filter offset of 1
 	int nFirstY = max(0, int((uint32)(nIncrementY*fullTargetOffset.y) >> 16) - 1);
 	int nLastY = min(sourceSize.cy - 1, int(((uint32)(nIncrementY*(fullTargetOffset.y + nTargetHeight - 1)) >> 16) + 2));
 	int nTempTargetWidth = nLastY - nFirstY + 1;
@@ -1718,7 +1718,7 @@ void* CBasicProcessing::SampleDown_HQ(CSize fullTargetSize, CPoint fullTargetOff
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
-// High quality down-sampling (Helpers for SSE and MMX implementation)
+// High quality downsampling (Helpers for SSE and MMX implementation)
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 // Rotates a line of 'simdPixelsPerRegister' pixels from source to targt
@@ -2004,7 +2004,7 @@ static CXMMImage* ApplyFilter_SSE(int nSourceHeight, int nTargetHeight, int nWid
 #else
 // Apply filter in y direction in SSE
 // nSourceHeight: Height of source image, only here to match interface of C++ implementation
-// nTargetHeight: Height of target image after re-sampling
+// nTargetHeight: Height of target image after resampling
 // nWidth: Width of source image
 // nStartY_FP: 16.16 fixed point number, denoting the y-start sub-pixel coordinate
 // nStartX: Start of filtering in x-direction (not an FP number)
@@ -2320,7 +2320,7 @@ FilterKernelLoop:
 #endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////
-// High quality down-sampling and up-sampling (SIMD implementation)
+// High quality downsampling and upsampling (SIMD implementation)
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 void* SampleDown_HQ_MMX_SSE_Core(CSize fullTargetSize, CPoint fullTargetOffset, CSize clippedTargetSize,

@@ -37,7 +37,7 @@ public:
 		CLocalDensityCorr* pLDC = NULL, bool bIsThumbnailImage = false, CRawMetadata* pRawMetadata = NULL);
 	~CJPEGImage(void);
 
-	// Gets re-sampled and processed 32 bpp DIB image (up or down-sampled).
+	// Gets resampled and processed 32 bpp DIB image (up or downsampled).
 	// Parameters:
 	// fullTargetSize: Full target size of resized image to render (without any clipping to actual clipping size)
 	// clippingSize: Sub-rectangle in fullTargetSize to render (the returned DIB has this size)
@@ -57,7 +57,7 @@ public:
 		return GetDIBInternal(fullTargetSize, clippingSize, targetOffset, imageProcParams, eProcFlags, NULL, NULL, 0.0, false, bNotUsed);
 	}
 
-	// Gets re-sampled and processed DIB image (up or down-sampled), also including a low quality rotation.
+	// Gets resampled and processed DIB image (up or downsampled), also including a low quality rotation.
 	// The rotation angle is specified in radians.
 	// PFLAG_HighQualityResampling must not be set when calling this method 
 	void* GetDIBRotated(CSize fullTargetSize, CSize clippingSize, CPoint targetOffset,
@@ -66,7 +66,7 @@ public:
 		return GetDIBInternal(fullTargetSize, clippingSize, targetOffset, imageProcParams, eProcFlags, NULL, NULL, dRotation, bShowGrid, bNotUsed);
 	}
 
-	// Gets re-sampled and processed DIB image (up or down-sampled), including a low quality trapezoid transformation.
+	// Gets resampled and processed DIB image (up or downsampled), including a low quality trapezoid transformation.
 	// PFLAG_HighQualityResampling must not be set when calling this method 
 	void* GetDIBTrapezoid(CSize fullTargetSize, CSize clippingSize, CPoint targetOffset,
 		const CImageProcessingParams & imageProcParams, EProcessingFlags eProcFlags, const CTrapezoid* pTrapezoid, bool bShowGrid) {
@@ -160,7 +160,7 @@ public:
 	int InitOrigWidth() const { return m_nInitOrigWidth; }
 	int InitOrigHeight() const { return m_nInitOrigHeight; }
 
-	// Size of DIB - size of re-sampled section of the original image. If zero, no DIB is currently available.
+	// Size of DIB - size of resampled section of the original image. If zero, no DIB is currently available.
 	int DIBWidth() const { return m_ClippingSize.cx; }
 	int DIBHeight() const { return m_ClippingSize.cy; }
 
@@ -338,7 +338,7 @@ public:
 
 private:
 
-	// used internally for re-sampling type
+	// used internally for resampling type
 	enum EResizeType {
 		NoResize,
 		DownSample,
@@ -447,16 +447,16 @@ private:
 						 const CUnsharpMaskParams * pUnsharpMaskParams, const CTrapezoid * pTrapezoid, 
 						 double dRotation, bool bShowGrid, bool& bParametersChanged);
 
-	// Re-sample when panning was done, using existing data in DIBs. Old clipping rectangle is given in oldClippingRect
+	// Resample when panning was done, using existing data in DIBs. Old clipping rectangle is given in oldClippingRect
 	void ResampleWithPan(void* & pDIBPixels, void* & pDIBPixelsLUTProcessed, CSize fullTargetSize, 
 		CSize clippingSize, CPoint targetOffset, CRect oldClippingRect,
 		EProcessingFlags eProcFlags, const CImageProcessingParams & imageProcParams, double dRotation, EResizeType eResizeType);
 
-	// Re-sample to given target size. Returns re-sampled DIB
+	// Resample to given target size. Returns resampled DIB
 	void* Resample(CSize fullTargetSize, CSize clippingSize, CPoint targetOffset, 
 		EProcessingFlags eProcFlags, double dSharpen, double dRotation, EResizeType eResizeType);
 
-	// Resize to given target size. Returns re-sampled DIB. Used when resizing original pixels.
+	// Resize to given target size. Returns resampled DIB. Used when resizing original pixels.
 	void* InternalResize(void* pixels, int channels, EResizeFilter filter, CSize targetSize, CSize sourceSize);
 
 	// Apply the given unsharp mask to m_pDIBPixels (can be null to not apply an unsharp mask, then NULL is returned)
@@ -491,7 +491,7 @@ private:
 	// Gets the new size of the image after doing a free rotation
 	static CSize GetSizeAfterFreeRotation(const CSize& sourceSize, double dRotation, bool bAutoCrop, bool bKeepAspectRatio, CPoint & offset);
 
-	// Get if from source to target size it is down or up-sampling
+	// Get if from source to target size it is down or upsampling
 	EResizeType GetResizeType(CSize targetSize, CSize sourceSize);
 
 	// Gets the rotation from EXIF if available

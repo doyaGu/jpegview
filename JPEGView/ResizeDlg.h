@@ -6,7 +6,7 @@
 #include "resource.h"
 #include "ImageProcessingTypes.h"
 
-// Allows to change image size, i.e. re-sample the image.
+// Allows to change image size, i.e. resample the image.
 class CResizeDlg : public CDialogImpl<CResizeDlg>
 {
 public:
