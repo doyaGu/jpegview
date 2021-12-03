@@ -192,7 +192,7 @@ public:
 	bool IsCropped() { return m_bCropped; }
 
 	// Returns if this image's original pixels have been processed destructively (e.g. cropped or rotated by non-90 degrees steps)
-	bool IsDestructivlyProcessed() { return m_bIsDestructivlyProcessed; }
+	bool IsDestructivelyProcessed() { return m_bIsDestructivelyProcessed; }
 
 	// Returns if this image has been processed in a way not supported to be stored in the parameter DB.
 	bool IsProcessedNoParamDB() { return m_bIsProcessedNoParamDB; }
@@ -404,7 +404,7 @@ private:
 	float m_fLightenShadowFactor;
 
 	bool m_bCropped; // Image has been cropped
-	bool m_bIsDestructivlyProcessed; // Original image pixels destructively processed (i.e. cropped or size changed)
+	bool m_bIsDestructivelyProcessed; // Original image pixels destructively processed (i.e. cropped or size changed)
 	bool m_bIsProcessedNoParamDB;
 	CRotationParams m_rotationParams; // current rotation
 	bool m_bRotationByEXIF; // is the rotation given by EXIF
@@ -497,7 +497,7 @@ private:
 	// Gets the rotation from EXIF if available
 	int GetRotationFromEXIF(int nOrigRotation);
 
-	// Sets the m_bIsDestructivlyProcessed flag to true and resets rotation
+	// Sets the m_bIsDestructivelyProcessed flag to true and resets rotation
 	void MarkAsDestructivelyProcessed();
 
 	// Called when the original pixels have changed (rotate, crop, unsharp mask), all cached pixel data gets invalid

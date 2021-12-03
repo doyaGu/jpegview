@@ -125,7 +125,7 @@ CJPEGImage::CJPEGImage(int nWidth, int nHeight, void* pPixels, void* pEXIFData, 
 	m_pCachedProcessedHistogram = NULL;
 
 	m_bCropped = false;
-	m_bIsDestructivlyProcessed = false;
+	m_bIsDestructivelyProcessed = false;
 	m_bIsProcessedNoParamDB = false;
 	m_bRotationByEXIF = false;
 	m_bFirstReprocessing = true;
@@ -1419,7 +1419,7 @@ int CJPEGImage::GetRotationFromEXIF(int nOrigRotation) {
 }
 
 void CJPEGImage::MarkAsDestructivelyProcessed() {
-	m_bIsDestructivlyProcessed = true;
+	m_bIsDestructivelyProcessed = true;
 	m_rotationParams.FreeRotation = 0.0;
 	m_rotationParams.Flags = RFLAG_None;
 }

@@ -20,7 +20,7 @@ public:
 	// No exception is thrown in this case.
 
 	// Note on DIBs: The rows of DIBs are padded to the next 4 byte boundary. For 32 bpp DIBs this is
-	// implicitely true (no padding needed), for other types the padding must be considered.
+	// implicitly true (no padding needed), for other types the padding must be considered.
 	
 	// Note: The output format of the JPEG lib is 24 bit BGR format. Padding is to 4 byte boundaries, as DIBs.
 
