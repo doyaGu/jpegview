@@ -1169,6 +1169,7 @@ LRESULT CMainDlg::OnContextMenu(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam,
 		::EnableMenuItem(hMenuTrackPopup, IDM_PRINT, MF_BYCOMMAND | MF_GRAYED);
 		::EnableMenuItem(hMenuTrackPopup, IDM_COPY, MF_BYCOMMAND | MF_GRAYED);
 		::EnableMenuItem(hMenuTrackPopup, IDM_COPY_FULL, MF_BYCOMMAND | MF_GRAYED);
+		::EnableMenuItem(hMenuTrackPopup, IDM_COPY_PATH, MF_BYCOMMAND | MF_GRAYED);
 		::EnableMenuItem(hMenuTrackPopup, IDM_SAVE_PARAM_DB, MF_BYCOMMAND | MF_GRAYED);
 		::EnableMenuItem(hMenuTrackPopup, IDM_CLEAR_PARAM_DB, MF_BYCOMMAND | MF_GRAYED);
 		::EnableMenuItem(hMenuTrackPopup, SUBMENU_POS_ZOOM, MF_BYPOSITION  | MF_GRAYED);
@@ -1182,6 +1183,8 @@ LRESULT CMainDlg::OnContextMenu(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam,
 		if (m_bKeepParams || m_pCurrentImage->IsClipboardImage())
 			::EnableMenuItem(hMenuTrackPopup, IDM_SAVE_PARAM_DB, MF_BYCOMMAND | MF_GRAYED);
 		if (m_pCurrentImage->IsClipboardImage()) {
+			::EnableMenuItem(hMenuTrackPopup, IDM_EXPLORE, MF_BYCOMMAND | MF_GRAYED);  // cannot explore clipboard image
+			::EnableMenuItem(hMenuTrackPopup, IDM_COPY_PATH, MF_BYCOMMAND | MF_GRAYED);
 			::EnableMenuItem(hMenuModDate, IDM_TOUCH_IMAGE, MF_BYCOMMAND | MF_GRAYED);
 			::EnableMenuItem(hMenuModDate, IDM_TOUCH_IMAGE_EXIF, MF_BYCOMMAND | MF_GRAYED);
 		}
@@ -1307,7 +1310,9 @@ void CMainDlg::ExecuteCommand(int nCommand) {
 			OpenFileWithDialog(false, false);
 			break;
 		case IDM_EXPLORE:
-			ExploreFile();
+			if (!m_pCurrentImage->IsClipboardImage()) {
+				ExploreFile();
+			}
 			break;
 		case IDM_SAVE:
 		case IDM_SAVE_SCREEN:
@@ -1340,6 +1345,11 @@ void CMainDlg::ExecuteCommand(int nCommand) {
 			if (m_pCurrentImage != NULL) {
 				CClipboard::CopyFullImageToClipboard(this->m_hWnd, m_pCurrentImage, *m_pImageProcParams, CreateDefaultProcessingFlags(), m_pFileList->Current());
 				this->Invalidate(FALSE);
+			}
+			break;
+		case IDM_COPY_PATH:
+			if (m_pCurrentImage != NULL && !m_pCurrentImage->IsClipboardImage()) {
+				CClipboard::CopyPathToClipboard(this->m_hWnd, m_pCurrentImage, m_pFileList->Current());
 			}
 			break;
 		case IDM_PASTE:
@@ -2920,10 +2930,16 @@ bool CMainDlg::ImageToScreen(float & fX, float & fY) {
 	return true;
 }
 
+/// <summary>
+/// Get current filename/filepath
+/// </summary>
+/// <param name="bFileTitle">If true, returns only the filename part.  If false, returns complete filepath</param>
+/// <returns>Returns the filename either just the title or full filepath</returns>
 LPCTSTR CMainDlg::CurrentFileName(bool bFileTitle) {
 	if (m_pCurrentImage != NULL && m_pCurrentImage->IsClipboardImage()) {
 		return _T("Clipboard Image");
 	}
+
 	if (m_pFileList != NULL) {
 		return bFileTitle ? m_pFileList->CurrentFileTitle() : m_pFileList->Current();
 	} else {
@@ -3010,7 +3026,9 @@ void CMainDlg::EditINIFile(bool bGlobalINI) {
 }
 
 void CMainDlg::UpdateWindowTitle() {
-	LPCTSTR sCurrentFileName = CurrentFileName(true);
+	bool bShowFullPathInTitle  = CSettingsProvider::This().ShowFullPathInTitle();
+	LPCTSTR sCurrentFileName = CurrentFileName(!bShowFullPathInTitle);
+
 	if (sCurrentFileName == NULL || m_pCurrentImage == NULL) {
 		this->SetWindowText(_T("JPEGView"));
 	} else {
