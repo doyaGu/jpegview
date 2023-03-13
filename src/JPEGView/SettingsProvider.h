@@ -29,6 +29,7 @@ public:
 	double MagentaGreen() { return m_dMagentaGreen; }
 	double YellowBlue() { return m_dYellowBlue; }
 	bool HighQualityResampling() { return m_bHQRS; }
+	bool DefaultSelectionMode() { return m_bDefaultSelectionMode; }
 	bool ShowFileName() { return m_bShowFileName; }
 	bool ShowFileInfo() { return m_bShowFileInfo; }
 	bool ShowEXIFDateInTitle() { return m_bShowEXIFDateInTitle; }
@@ -48,7 +49,7 @@ public:
 	int NumberOfCoresToUse() { return m_nNumCores; }
 	EFilterType DownsamplingFilter() { return m_eDownsamplingFilter; }
 	Helpers::ESorting Sorting() { return m_eSorting; }
-	bool IsSortedUpcounting() { return m_bIsSortedUpcounting; }
+	bool IsSortedAscending() { return m_bIsSortedAscending; }
 	Helpers::ENavigationMode Navigation() { return m_eNavigation; }
 	bool NavigateWithMouseWheel() { return m_bNavigateMouseWheel; }
 	double MouseWheelZoomSpeed() { return m_dMouseWheelZoomSpeed; }
@@ -119,13 +120,16 @@ public:
 	double DefaultPrintWidth() { return m_dDefaultPrintWidth; }
 	Helpers::EMeasureUnits MeasureUnit() { return m_eMeasureUnit; }
 	CSize MinimalWindowSize() { return m_minimalWindowSize; }
-	double MinimalDisplayTime() { return m_minimalDisplayTime; }
+	int MinimalDisplayTime() { return m_minimalDisplayTime; }
 	CSize UserCropAspectRatio() { return m_userCropAspectRatio; }
 	LPCTSTR WallpaperPath() { return m_sWallpaperPath; }
 	bool SkipFileOpenDialogOnStartup() { return m_bSkipFileOpenDialogOnStartup; }
 	Helpers::EIniEditor IniEditor() { return m_eIniEditor; }
 	LPCTSTR CustomIniEditor() { return m_sIniEditor; }
 	LPCTSTR GPSMapProvider() { return m_sGPSMapProvider; }
+	bool FlashWindowAlert() { return m_bFlashWindowAlert; }
+	bool BeepSoundAlert() { return m_bBeepSoundAlert; }
+	double ZoomPauseFactor() { return m_zoomPauseFactor; }  // while internally this is represented in doubles, using a whole number percent simplifies it for the user... configuring doubles is not user friendly at all
 
 	// Returns if a user INI file exists
 	bool ExistsUserINI();
@@ -139,7 +143,7 @@ public:
 	// Note that this INI file has precedence over the INI file at the program directory
 	void SaveSettings(const CImageProcessingParams& procParams,
 		EProcessingFlags eProcFlags,
-		Helpers::ENavigationMode eNavigationMode, Helpers::ESorting eFileSorting, bool isSortedUpcounting,
+		Helpers::ENavigationMode eNavigationMode, Helpers::ESorting eFileSorting, bool isSortedAscending,
 		Helpers::EAutoZoomMode eAutoZoomMode, Helpers::EAutoZoomMode eAutoZoomModeFullScreen,
 		bool bShowNavPanel, bool bShowFileName, bool bShowFileInfo,
 		Helpers::ETransitionEffect eSlideShowTransitionEffect);
@@ -193,6 +197,7 @@ private:
 	double m_dMagentaGreen;
 	double m_dYellowBlue;
 	bool m_bHQRS;
+	bool m_bDefaultSelectionMode;
 	bool m_bShowFileName;
 	bool m_bShowFileInfo;
 	bool m_bShowEXIFDateInTitle;
@@ -212,7 +217,7 @@ private:
 	int m_nNumCores;
 	EFilterType m_eDownsamplingFilter;
 	Helpers::ESorting m_eSorting;
-	bool m_bIsSortedUpcounting;
+	bool m_bIsSortedAscending;
 	Helpers::ENavigationMode m_eNavigation;
 	bool m_bNavigateMouseWheel;
 	double m_dMouseWheelZoomSpeed;
@@ -281,13 +286,16 @@ private:
 	double m_dDefaultPrintWidth;
 	Helpers::EMeasureUnits m_eMeasureUnit;
 	CSize m_minimalWindowSize;
-	double m_minimalDisplayTime;
+	int m_minimalDisplayTime;
 	CSize m_userCropAspectRatio;
 	CString m_sWallpaperPath;
 	bool m_bSkipFileOpenDialogOnStartup;
 	Helpers::EIniEditor  m_eIniEditor;
 	CString m_sIniEditor;
 	CString m_sGPSMapProvider;
+	bool m_bFlashWindowAlert;
+	bool m_bBeepSoundAlert;
+	int m_zoomPauseFactor;
 
 	std::list<CUserCommand*> m_userCommands;
 	std::list<CUserCommand*> m_openWithCommands;

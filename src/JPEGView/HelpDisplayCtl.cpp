@@ -92,10 +92,12 @@ void CHelpDisplayCtl::GenerateHelpDisplay() {
 	m_pHelpDisplay->AddLineInfo(_KeyDesc(IDM_COLOR_CORRECTION_INC, IDM_COLOR_CORRECTION_DEC), buff3, CNLS::GetString(_T("Increase/decrease auto color cast correction amount")));
 	TCHAR buff4[16]; _stprintf_s(buff4, 16, _T("%.2f"), m_pImageProcParams->ContrastCorrectionFactor);
 	m_pHelpDisplay->AddLineInfo(_KeyDesc(IDM_CONTRAST_CORRECTION_INC, IDM_CONTRAST_CORRECTION_DEC), buff4, CNLS::GetString(_T("Increase/decrease auto contrast correction amount")));
-	m_pHelpDisplay->AddLine(_T("1 .. 9"), CNLS::GetString(_T("Slide show with timeout of n seconds (ESC to stop)")));
+	m_pHelpDisplay->AddLine(_T("1 .. 9"), CNLS::GetString(_T("Slideshow with timeout of 'n' seconds (ESC to stop)")));
 	m_pHelpDisplay->AddLineInfo(_T("Ctrl[+Shift] 1 .. 9"),  LPCTSTR(NULL), CNLS::GetString(_T("Set timeout to n/10 sec, respectively n/100 sec (Ctrl+Shift)")));
 	m_pHelpDisplay->AddLine(_KeyDesc(IDM_ROTATE_270, IDM_ROTATE_90), CNLS::GetString(_T("Rotate image and fit to screen")));
 	m_pHelpDisplay->AddLine(_KeyDesc(IDM_FIT_TO_SCREEN), CNLS::GetString(_T("Fit image to screen")));
+	m_pHelpDisplay->AddLineInfo(_KeyDesc(IDM_HIDE_TITLE_BAR), m_pMainDlg->IsWindowBorderless(), CNLS::GetString(_T("Toggle window title bar hidden mode")));
+	m_pHelpDisplay->AddLineInfo(_KeyDesc(IDM_ALWAYS_ON_TOP), m_pMainDlg->IsAlwaysOnTop(), CNLS::GetString(_T("Toggle window always on top mode")));
 	m_pHelpDisplay->AddLine(_KeyDesc(IDM_TOGGLE_FIT_TO_SCREEN_100_PERCENTS), CNLS::GetString(_T("Zoom 1:1 (100 %)")));
 	TCHAR buff5[16]; buff5[0] = 0; if (m_pMainDlg->GetZoom() > 0) _stprintf_s(buff5, 16, _T("%.0f %%"), m_pMainDlg->GetZoom() * 100);
 	_stprintf_s(buffMI, 256, CNLS::GetString(_T("Zoom in (%s)/Zoom out (%s)")), _KeyDesc(IDM_ZOOM_INC), _KeyDesc(IDM_ZOOM_DEC));

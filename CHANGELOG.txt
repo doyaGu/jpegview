@@ -1,6 +1,131 @@
 JPEGView Changelog
 ******************
 
+[1.2.45] 2023-03-04
+New features:
+- Add support for ICC Profiles embedded in WebP, JPEG XL, HEIF/HEIC and AVIF images.
+  Set option UseEmbeddedColorProfiles=true to enable.
+  NOTE: Currently, this option will disable Animated PNG due to usage of GDI+ (see 1.1.44 release notes)
+  PR #156, thanks qbnu (GH https://github.com/qbnu)
+Bugs fixed:
+- Fixed: Freeze in JPEGView when CPUType set/auto-detected as AVX2, HighQualityResampling=true, and window width is > 3200 pixels (either spanned over multi-monitor or on a single monitor).
+  (This outstanding bug had been extensively reported since v1.0.35+.  Thanks to everyone who provided samples, videos, and system configurations to help identify the specific conditions necessary to trigger this bug!)
+- Fixed: Regression introduced in 1.1.44 which caused "Fit Image to Screen" to create a tiny window
+  instead of a window which filled the screen.
+- Fixed: In certain cases with certain image, after zooming out to 0% (as far as allowed), zooming in did not work and got stuck at 0%
+- Fixed: FileNameFormat option %filesize% substitution now shows MB when exceeding 1 MB, not 100 MB
+Other changes:
+- Updated French translation, thanks LaurentGrenet (GH https://github.com/LaurentGrenet)
+
+[1.1.44] 2023-02-27
+New features:
+- Add support for Animated AVIF (AVIF Sequence)
+  PR #143, thanks qbnu (GH https://github.com/qbnu)
+- QOI (Quite OK Image) Read/Write support, (also supported on XP)
+  PR #150, thanks qbnu (GH https://github.com/qbnu)
+- New Mouse Gesture: CTRL + SHIFT + LMouse Drag => Instantly zoom into selected area
+  Modified backport feature from fork by David Neon (GH https://github.com/sdneon)
+- New Crop options: Fixed to image aspect ratio (actual ratio displays in menu), 7:5 (common print ratio), 1:1 (common web size)
+- New INI file setting: "FlashWindowAlert"
+  When WrapAroundFolder=false, briefly flash window when attempting to navigate beyond the beginning or end of the file list.
+  (Default to enabled, since it's visual UI feedback)
+- New INI file setting: "BeepSoundAlert"
+  When WrapAroundFolder=false, play the system beep sound when attempting to navigate beyond the beginning or end of the file list.
+  (Default to disabled, since audio feedback can be an annoyance)
+- When using a fixed crop mode, and resizing of crop/selection box:
+  Dragging the handles in Top-Left and Bottom-Right will change to portrait or landscape orientation if dragging in the direction to "pull" the crop into the other orientation.  (Top-Left pull by w, Bottom-Right pull by h)
+  (Effectively doubles the aspect ratios natively supported into portrait orientations)
+Bugs fixed:
+- Fixed: Transparency color for some image types was reversed BGR
+- Fixed: TGA used background color for transparency instead of transparency color
+- When viewing the last frame of a multi-frame image, at the end of the file list, with option WrapAroundFolder=false, attempting to navigate to the next frame will no longer loop back to frame 0
+Changed behavior:
+- Restores ICC Profile support for PNGs by using GDI+ when ForceGDIPlus=true or UseEmbeddedColorProfiles=true options set.  NOTE: Disables animation.
+  PR #149, thanks qbnu (GH https://github.com/qbnu)
+- When cursor is visible (not in full screen) always zoom to cursor when executing command IDM_TOGGLE_FIT_TO_SCREEN_100_PERCENTS (Spacebar by default)
+  Previous behavior: Always zoomed to center when a new image was loaded
+- Replaced INI option "IsSortedUpcounting" with "FileSortAscending" (it is an English translatable word, and clearer on what it is related to)
+- When renaming, either by clicking on the filename on the bottom panel, or a keymap to IDM_RENAME, only select the filename part without the extension part for easier renaming
+- Completely unbound the zoom. Previously allowed: 10% - 1600%
+  Zoom out: Unlimited to as small as possible
+  Zoom in: Unlimited as long as the image "rescaled" by zoom factor is < 65535 in any dimension (internal limitation)
+- Crop ratios submenu is now sorted by increasing ratios, from square (1:1) to increasingly oblong
+Other changes:
+- New INI file setting: "ZoomPausePercent"
+  The default behavior of JPEGview is to briefly pause at 100% when continuously zooming in or out. (This ensures you can always get to perfectly 100%)
+  This new setting allows the user to configure to a different percentage, or disable to zoom continuously with no interruption
+- Reorder JPEGView.ini options grouping similar options and adding comment headers
+  Options should be easier to find and logically grouped. Previously, options were haphazardly added and weren't sorted in any particular order
+  (It might be a little painful to move your existing options over to the new INI format, but future options will be much easier to find!)
+  (Your existing INI will continue to work, if you choose to continue to use it, but you'll have to add in new options manually)
+- Updated Russian translation, thanks Dmitry Yerokhin
+- Updated Japanese translation, thanks maboroshin (GH https://github.com/maboroshin)
+- Updated Chinese Simplified translation, thanks dukeng (GH https://github.com/dunkeng)
+- New strings.txt English reference for translators, it will always be current to the code
+- Second part of movie/slideshow menus now translatable
+- Updated to Turbo JPEG library version 2.1.91 (2023-02-08)
+- Updated to JPEG XL library version 0.8.1 (2023-02-03)
+- Devs: Translation scripts to sync with code, regenerate at any time, and added some features to make translating easier, like missing and historic text
+Installer Changes:
+- Add all built-in supported file extensions to Window's "Open With >" submenu
+- Add "Edit with JPEGView" option to Windows Explorer for all extensions JPEGView can save to
+- 64-bit installs into "C:\Program Files" on new installs (existing installs will use previous install location)
+
+[1.1.43] 2023-02-06
+New features:
+- HEIF/AVIF support
+  Supports AV1/HEVC encoded still images and image collections
+  (Not yet supported: thumbnails, animations, or AVC encoded images)
+  (NOTE: Microsoft Visual C++ Runtime vcruntime140.dll required)
+  PR #109, thanks qbnu (GH https://github.com/qbnu)
+Changed behavior:
+- KeyMap.txt is now optional, the defaults from KeyMap.txt.default will be loaded if a user-customized version does not exist
+  KeyMap.txt search paths: %AppData%\JPEGView\KeyMap.txt -> (JPEGView.exe dir)\KeyMap.txt -> (JPEGView.exe dir)\KeyMap.txt.default
+  (This means, extracting new releases will not overwrite your customized KeyMap.txt)
+- KeyMap.txt is now simplified to only the include key mappings.  The list of commands and help can be found in the KeyMap-README.html
+  (KeyMap.txt from older versions will continue to work if you have customized one)
+- Help Display now properly shows the on/off status of "hide window title bar" and "always on top" modes
+Other changes:
+- Updated French translation, thanks LaurentGrenet (GH https://github.com/LaurentGrenet)
+- Updated Japanese translation, thanks maboroshin (GH https://github.com/maboroshin)
+- Updated Russian translation, thanks Dmitry Yerokhin
+- Windows XP is still supported and special WinXP-compatible builds will be released (WinXP builds do not support new formats added after v1.0.37.1)
+- WebP is now integrated into JPEGView without needing webp.dll
+  PR #128, thanks qbnu (GH https://github.com/qbnu)
+
+[1.1.42] 2023-01-26
+New features:
+- JPEG XL support, with animation
+  (NOTE: Microsoft Visual C++ Runtime vcruntime140.dll required when opening
+  JPEG XL files.  Most Windows 10+ systems have this installed already.
+  Otherwise, download it for free from Microsoft.)
+  PR #99, thanks qbnu (GH https://github.com/qbnu)
+- Add a new command "Hide window title bar"
+  Default shortcut key: "SHIFT+F11"
+  This toggles JPEGView window to show or hide title bar.
+  NOTE: in this mode, you cannot resize the window (although full screen is still supported)
+- Add a new mouse gesture to move the JPEGView window at any time: ALT+LeftClick
+  This allows moving the window without directly clicking on the title bar (or if title bar is hidden).
+- Add a new command "Always on Top"
+  Default shortcut key: "SHIFT+F12"
+  This toggles the JPEGView window to display above all other windows, even when not in focus
+- Add new command "Copy file path"
+  Default shortcut key: "CTRL+SHIFT+C"
+  This copies file path of the image to clipboard
+  PR #62, thanks Trevor Kropp (GH https://github.com/kropptrevor)
+Changed behavior:
+- Animated formats: frame durations <= 10ms are set to 100ms
+  (Matches behavior of most web browers)
+  PR #108, thanks qbnu (GH https://github.com/qbnu)
+Other changes:
+- New INI file setting: "ShowFilePathInTitle"
+  Show full file path and name in the window title
+  (shows only file name by default)
+- New INI file setting: "DefaultSelectionMode"
+  Allows for disabling the default selection mode behavior when clicking on an image in JPEGView.
+  Set to false to use selection mode only when CTRL is pressed, to prevent unintended cropping/zooming.
+  (CTRL+LeftClick always results in selection, regardless of image zoom)
+
 [1.1.41.1] 2023-01-03
 Bugs fixed:
 - Fixed regression introduced in 1.1.41 which caused CR2 and DNG files

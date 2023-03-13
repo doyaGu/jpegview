@@ -1,3 +1,7 @@
+[![Documentation](https://img.shields.io/badge/Docs-Outdated-yellowgreen)](https://htmlpreview.github.io/?https://github.com/sylikc/jpegview/blob/master/src/JPEGView/Config/readme.html) [![Localization Progress](https://img.shields.io/badge/Localized-84%25-blueviolet)](https://github.com/sylikc/jpegview/wiki/Localization) [![Build x64](https://github.com/sylikc/jpegview/actions/workflows/build-release-x64.yml/badge.svg?branch=master)](https://github.com/sylikc/jpegview/actions/workflows/build-release-x64.yml) [![OS Support](https://img.shields.io/badge/Windows-XP%20%7C%207%20%7C%208%20%7C%2010%20%7C%2011-blue)](#) [![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue)](https://github.com/sylikc/jpegview/blob/master/LICENSE.txt)
+
+[![Latest GitHub Release](https://img.shields.io/github/v/release/sylikc/jpegview?label=GitHub&style=social)](https://github.com/sylikc/jpegview/releases)[![Downloads](https://badgen.net/github/assets-dl/sylikc/jpegview?cache=3600&color=grey&label=)](#) [![WinGet](https://repology.org/badge/version-for-repo/winget/jpegview.svg?allow_ignored=1&header=WinGet)](https://winstall.app/apps/sylikc.JPEGView) [![PortableApps](https://img.shields.io/badge/PortableApps-Current-green)](https://portableapps.com/apps/graphics_pictures/jpegview_portable) [![Chocolatey](https://img.shields.io/chocolatey/v/jpegview)](https://community.chocolatey.org/packages/jpegview)
+
 # JPEGView - Image Viewer and Editor
 
 This is the official re-release of JPEGView.
@@ -12,7 +16,7 @@ JPEGView has built-in support the following formats:
 
 * Popular: JPEG, GIF
 * Lossless: BMP, PNG, TIFF
-* Web: WEBP, JXL
+* Web: WEBP, JXL, HEIF/HEIC, AVIF
 * Legacy: TGA, WDP, HDP, JXR
 * Camera RAW formats:
   * Adobe (DNG), Canon (CRW, CR2), Nikon (NEF, NRW), Sony (ARW, SR2)
@@ -30,11 +34,11 @@ Basic on-the-fly image processing is provided - allowing adjusting typical param
 * rotation
 * perspective
 * contrast
-* local under-/over-exposure
+* local under-exposure/over-exposure
 
 ### Other Features:
 
-* Small and fast, uses SSE2 and up to 4 CPU cores
+* Small and fast, uses AVX2/SSE2 and up to 4 CPU cores
 * High quality resampling filter, preserving sharpness of images
 * Basic image processing tools can be applied realtime during viewing
 * Movie/Slideshow mode - to play folder of JPEGs as movie
@@ -44,6 +48,7 @@ Basic on-the-fly image processing is provided - allowing adjusting typical param
 ## Official Releases
 
 Official releases will be made to [sylikc's GitHub Releases](https://github.com/sylikc/jpegview/releases) page.  Each release includes:
+
 * **Archive Zip/7z** - Portable
 * **Windows Installer MSI** - For Installs
 * **Source code** - Build it yourself
@@ -54,7 +59,9 @@ JPEGView _does not require installation_ to run.  Just **unzip, and run** either
 
 ## MSI Installer
 
-For those who prefer to have JPEGView installed for All Users, a 32-bit/64-bit installer will be available to download starting with v1.0.40.  I don't own a code signing certificate yet, so the MSI release is not signed.
+For those who prefer to have JPEGView installed for All Users, a 32-bit/64-bit installer is available to download starting with v1.0.40.
+
+(Unfortunately, I don't own a code signing certificate yet, so the MSI release is not signed.  Please verify checksums!)
 
 ### WinGet
 
@@ -66,16 +73,16 @@ C:\> `winget search jpegview`
 ```
 Name     Id              Version  Source
 -----------------------------------------
-JPEGView sylikc.JPEGView 1.0.39.1 winget
+JPEGView sylikc.JPEGView 1.1.43  winget
 ```
 
 C:\> `winget install jpegview`
 ```
-Found JPEGView [sylikc.JPEGView] Version 1.0.39.1
+Found JPEGView [sylikc.JPEGView] Version 1.1.43
 This application is licensed to you by its owner.
 Microsoft is not responsible for, nor does it grant any licenses to, third-party packages.
-Downloading https://github.com/sylikc/jpegview/releases/download/v1.0.39.1-wix/JPEGView64_en-us_1.0.39.1.msi
-  ==============================  2.13 MB / 2.13 MB
+Downloading https://github.com/sylikc/jpegview/releases/download/v1.1.43/JPEGView64_en-us_1.1.43.msi
+  ██████████████████████████████  4.23 MB / 4.23 MB
 Successfully verified installer hash
 Starting package install...
 Successfully installed
@@ -87,14 +94,20 @@ Another option is to use the official [JPEGView on PortableApps](https://portabl
 
 ## System Requirements
 
-32-bit version: Windows XP SP2 or later
-
-64-bit version: Windows 7/8/10/11 64-bit or later
+* 64-bit version: Windows 7/8/10/11 64-bit or later
+* 32-bit version: Windows 7 or later
+  * A special _32-bit Windows XP SP2_ build is available, which supports most formats (except for formats added after v1.0.37.1, ex. Animated PNG, JXL, HEIC).  Other features and options are the same as the normal builds.
 
 ## What's New
 
 * See what has changed in the [latest releases](https://github.com/sylikc/jpegview/releases)
 * Or Check the [CHANGELOG.txt](https://github.com/sylikc/jpegview/blob/master/CHANGELOG.txt) to review new features in detail.
+
+# Help / Documentation
+
+The JPEGView documentation is a little out of the date at the moment, but should still give a good summary of the features.
+
+This [readme.html](https://htmlpreview.github.io/?https://github.com/sylikc/jpegview/blob/master/src/JPEGView/Config/readme.html) is part of the JPEGView package.
 
 
 # Brief History
@@ -111,3 +124,8 @@ Special thanks to [qbnu](https://github.com/qbnu) for adding additional codec su
 * Animated WebP
 * Animated PNG
 * JPEG XL with animation support
+* HEIF/HEIC/AVIF support
+* QOI support
+* ICC Profile support for WebP, JPEG XL, HEIF/HEIC, AVIF
+
+Thanks to all the translators which keep JPEGView strings up-to-date in different languages!  See [CHANGELOG.txt](https://github.com/sylikc/jpegview/blob/master/CHANGELOG.txt) to find credits for translators at each release!

@@ -66,7 +66,7 @@ static void HandleErrorAndCloseHandle(EFileError eError, LPCTSTR sParamDBName, H
 		::FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, NULL, lastError,
 			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR) &lpMsgBuf, 0, NULL);
 		sError += _T("\n");
-		sError += CNLS::GetString(_T("Reason: "));
+		sError += CNLS::GetString(_T("Reason:")); sError += _T(" ");
 		sError += lpMsgBuf;
 		LocalFree(lpMsgBuf);
 	}
@@ -301,7 +301,7 @@ uint8 CParameterDBEntry::Convert(float value, float lowerLimit, float upperLimit
 float CParameterDBEntry::Convert(uint8 value, float lowerLimit, float upperLimit, bool isLog10) const {
 	float fValue = value*(upperLimit - lowerLimit)/255.0f + lowerLimit;
 	if (isLog10) {
-		fValue = pow(fValue, 10);
+		fValue = powf(fValue, 10);
 	}
 	return fValue;
 }
