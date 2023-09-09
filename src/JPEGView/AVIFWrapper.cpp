@@ -22,6 +22,7 @@ void* AvifReader::ReadImage(int& width,
 	int frame_index,
 	int& frame_count,
 	int& frame_time,
+	void*& exif_chunk,
 	bool& outOfMemory,
 	const void* buffer,
 	int sizebytes)
@@ -30,9 +31,10 @@ void* AvifReader::ReadImage(int& width,
 	width = height = 0;
 	nchannels = 4;
 	has_animation = false;
-	unsigned char* pPixelData = NULL;
+	exif_chunk = NULL;
 
 	avifResult result;
+	int nthreads = 256; // sets maximum number of active threads allowed for libavif, default is 1
 
 	// Cache animations
 	if (cache.decoder == NULL) {
@@ -43,6 +45,7 @@ void* AvifReader::ReadImage(int& width,
 		}
 		memcpy(cache.data, buffer, sizebytes);
 		cache.decoder = avifDecoderCreate();
+		cache.decoder->maxThreads = nthreads;
 		result = avifDecoderSetIOMemory(cache.decoder, cache.data, sizebytes);
 		if (result != AVIF_RESULT_OK) {
 			DeleteCache();
@@ -67,12 +70,7 @@ void* AvifReader::ReadImage(int& width,
 	avifRGBImageSetDefaults(&cache.rgb, cache.decoder->image);
 	cache.rgb.depth = 8;
 	cache.rgb.format = AVIF_RGB_FORMAT_BGRA;
-	avifRGBImageAllocatePixels(&cache.rgb);
-	result = avifImageYUVToRGB(cache.decoder->image, &cache.rgb);
-	if (result != AVIF_RESULT_OK) {
-		DeleteCache();
-		return NULL;
-	}
+	cache.rgb.maxThreads = nthreads;
 
 	width = cache.rgb.width;
 	height = cache.rgb.height;
@@ -81,24 +79,41 @@ void* AvifReader::ReadImage(int& width,
 	frame_time = (int)(cache.decoder->imageTiming.duration * 1000.0);
 
 	size_t size = width * nchannels * height;
-	pPixelData = new(std::nothrow) unsigned char[size];
-	if (pPixelData == NULL) {
+	cache.rgb.pixels = new(std::nothrow) unsigned char[size];
+	if (cache.rgb.pixels == NULL) {
 		outOfMemory = true;
+		return NULL;
+	}
+	cache.rgb.rowBytes = width * nchannels;
+	result = avifImageYUVToRGB(cache.decoder->image, &cache.rgb);
+	if (result != AVIF_RESULT_OK) {
+		delete[] cache.rgb.pixels;
+		DeleteCache();
 		return NULL;
 	}
 	avifRWData icc = cache.decoder->image->icc;
 	if (cache.transform == NULL)
 		cache.transform = ICCProfileTransform::CreateTransform(icc.data, icc.size, ICCProfileTransform::FORMAT_BGRA);
-	if (!ICCProfileTransform::DoTransform(cache.transform, cache.rgb.pixels, pPixelData, width, height))
-		memcpy(pPixelData, cache.rgb.pixels, size);
-	avifRGBImageFreePixels(&cache.rgb);
+	ICCProfileTransform::DoTransform(cache.transform, cache.rgb.pixels, cache.rgb.pixels, width, height);
+
+	avifRWData exif = cache.decoder->image->exif;
+	if (exif.size > 8 && exif.size < 65528 && exif.data != NULL) {
+		exif_chunk = malloc(exif.size + 10);
+		if (exif_chunk != NULL) {
+			memcpy(exif_chunk, "\xFF\xE1\0\0Exif\0\0", 10);
+			*((unsigned short*)exif_chunk + 1) = _byteswap_ushort(exif.size + 8);
+			memcpy((uint8_t*)exif_chunk + 10, exif.data, exif.size);
+		}
+	}
+
+	void* pPixelData = cache.rgb.pixels;
 	if (!has_animation)
 		DeleteCache();
+
 	return pPixelData;
 }
 
 void AvifReader::DeleteCache() {
-	avifRGBImageFreePixels(&cache.rgb);
 	if (cache.decoder)
 		avifDecoderDestroy(cache.decoder);
 	free(cache.data);

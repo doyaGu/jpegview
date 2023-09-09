@@ -1,4 +1,4 @@
-#include "StdAfx.h"
+ï»¿#include "StdAfx.h"
 #include "resource.h"
 #include "MainDlg.h"
 #include "JPEGImage.h"
@@ -19,7 +19,7 @@ static int GetFileNameHeight(HDC dc) {
 static CString CreateGPSString(GPSCoordinate* latitude, GPSCoordinate* longitude) {
 	const int BUFF_SIZE = 96;
 	TCHAR buff[BUFF_SIZE];
-	_stprintf_s(buff, BUFF_SIZE, _T("%.0f° %.0f' %.0f'' %s / %.0f° %.0f' %.0f'' %s"),
+	_stprintf_s(buff, BUFF_SIZE, _T("%.0fÂ° %.0f' %.0f'' %s / %.0fÂ° %.0f' %.0f'' %s"),
 		latitude->Degrees, latitude->Minutes, latitude->Seconds, latitude->GetReference(),
 		longitude->Degrees, longitude->Minutes, longitude->Seconds, longitude->GetReference());
 	return CString(buff);
@@ -121,7 +121,7 @@ void CEXIFDisplayCtl::FillEXIFDataDisplay() {
 		CRawMetadata* pRawMetaData = CurrentImage()->GetRawMetadata();
 		if (pEXIFReader != NULL) {
 			sComment = pEXIFReader->GetUserComment();
-			if (sComment == NULL || sComment[0] == 0) {
+			if (sComment == NULL || sComment[0] == 0 || ((std::wstring) sComment).find_first_not_of(L" \t\n\r\f\v", 0) == std::wstring::npos) {
 				sComment = pEXIFReader->GetImageDescription();
 			}
 			if (pEXIFReader->GetAcquisitionTimePresent()) {
@@ -201,7 +201,7 @@ void CEXIFDisplayCtl::FillEXIFDataDisplay() {
 		}
 	}
 
-	if (sComment == NULL || sComment[0] == 0) {
+	if (sComment == NULL || sComment[0] == 0 || ((std::wstring)sComment).find_first_not_of(L" \t\n\r\f\v", 0) == std::wstring::npos) {
 		sComment = CurrentImage()->GetJPEGComment();
 	}
 	if (CSettingsProvider::This().ShowJPEGComments() && sComment != NULL && sComment[0] != 0) {
