@@ -34,6 +34,7 @@
 #include "ResizeFilter.h"
 #include "EXIFReader.h"
 #include "EXIFHelpers.h"
+#include "RawMetadata.h"
 #include "ProcessingThreadPool.h"
 #include "PaintMemDCMgr.h"
 #include "PanelMgr.h"
@@ -257,13 +258,15 @@ CMainDlg::CMainDlg(bool bForceFullScreen) {
 	m_bMouseOn = false;
 	m_bKeepParametersBeforeAnimation = false;
 	m_bIsAnimationPlaying = false;
+	m_nLastAnimationOffset = 0;
+	m_nExpectedNextAnimationTickCount = 0;
 	m_bUseLosslessWEBP = false;
 	m_isBeforeFileSelected = true;
 	m_dLastImageDisplayTime = 0.0;
 	m_isUserFitToScreen = false;
 	m_autoZoomFitToScreen = Helpers::ZM_FillScreen;
-	m_bWindowBorderless = false;  // default real window with border
-	m_bAlwaysOnTop = false;  // default normal
+	m_bWindowBorderless = sp.WindowBorderlessOnStartup();  // unlike AlwaysOnTop, this is set early on initialize as it affects calculations of the window size, position, etc
+	m_bAlwaysOnTop = false;  // default normal window.  this will be set to true when AlwaysOnTop is toggled if set to startup in INI
 	m_bSelectZoom = false;  // this value is set when LButtonDown happens, to be read by LButtonUp
 
 	m_pPanelMgr = new CPanelMgr();
@@ -409,6 +412,11 @@ LRESULT CMainDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam
 		SetWindowPos(NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOCOPYBITS | SWP_FRAMECHANGED);
 	}
 
+	if (CSettingsProvider::This().WindowAlwaysOnTopOnStartup()) {
+		// if set by default for startup ... it is false by default, toggle = true
+		ToggleAlwaysOnTop();
+	}
+
 	m_bLockPaint = false;
 	m_isBeforeFileSelected = m_sStartupFile.IsEmpty();
 
@@ -519,7 +527,7 @@ LRESULT CMainDlg::OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, B
 
 		// Paint the DIB
 		if (pDIBData != NULL) {
-			BITMAPINFO bmInfo;
+			BITMAPINFO bmInfo{ 0 };
 			CPoint ptDIBStart = HelpersGUI::DrawDIB32bppWithBlackBorders(dc, bmInfo, pDIBData, backBrush, m_clientRect, clippedSize, m_DIBOffsets);
 			// The DIB is also blitted into the memory DCs of the panels
 			memDCMgr.BlitImageToMemDC(pDIBData, &bmInfo, ptDIBStart, m_pNavPanelCtl->CurrentBlendingFactor());
@@ -601,10 +609,10 @@ void CMainDlg::PaintToDC(CDC& dc) {
 		CPoint offsetsInImage = pCurrentImage->ConvertOffset(newSize, clippedSize, offsets);
 
 		void* pDIBData = pCurrentImage->GetDIB(newSize, clippedSize, offsetsInImage, 
-				*GetImageProcessingParams(), 
+				*GetImageProcessingParams(),
 				CreateDefaultProcessingFlags());
 		if (pDIBData != NULL) {
-			BITMAPINFO bmInfo;
+			BITMAPINFO bmInfo{ 0 };
 			CPoint ptDIBStart = HelpersGUI::DrawDIB32bppWithBlackBorders(dc, bmInfo, pDIBData, backBrush, m_clientRect, clippedSize, CPoint(0, 0));
 		}
 
@@ -630,8 +638,7 @@ void CMainDlg::BlendBlackRect(CDC & targetDC, CPanel& panel, float fBlendFactor)
 	memDCPanel.SelectBitmap(bitmapPanel);
 	memDCPanel.FillSolidRect(0, 0, nW, nH, RGB(0, 0, 1)); // nVidia workaround: blending pure black has a bug
 	
-	BLENDFUNCTION blendFunc;
-	memset(&blendFunc, 0, sizeof(blendFunc));
+	BLENDFUNCTION blendFunc{ 0 };
 	blendFunc.BlendOp = AC_SRC_OVER;
 	blendFunc.SourceConstantAlpha = (unsigned char)(fBlendFactor*255 + 0.5f);
 	blendFunc.AlphaFormat = 0;
@@ -1752,7 +1759,13 @@ void CMainDlg::ExecuteCommand(int nCommand) {
 				SetIcon(hIconSmall, FALSE);
 				CRect defaultWindowRect = CMultiMonitorSupport::GetDefaultWindowRect();
 				double dZoom = -1;
-				windowRect = sp.ExplicitWindowRect() ? defaultWindowRect : Helpers::GetWindowRectMatchingImageSize(m_hWnd, CSize(MIN_WND_WIDTH, MIN_WND_HEIGHT), defaultWindowRect.Size(), dZoom, m_pCurrentImage, false, true, m_bWindowBorderless);
+				windowRect = sp.ExplicitWindowRect() ?
+					defaultWindowRect :
+					Helpers::GetWindowRectMatchingImageSize(
+						m_hWnd,
+						CSize(MIN_WND_WIDTH, MIN_WND_HEIGHT),
+						defaultWindowRect.Size(),
+						dZoom, m_pCurrentImage, false, true, m_bWindowBorderless);
 				this->SetWindowPos(HWND_TOP, windowRect.left, windowRect.top, windowRect.Width(), windowRect.Height(), SWP_NOZORDER | SWP_NOCOPYBITS);
 				this->MouseOn();
 				m_bSpanVirtualDesktop = false;
@@ -1787,7 +1800,8 @@ void CMainDlg::ExecuteCommand(int nCommand) {
 				// get the size of the border to shift the window pos downwards
 				int windowCaptionHeight = Helpers::GetWindowCaptionSize();
 				double dZoom = -1;
-				CRect windowRect = Helpers::GetWindowRectMatchingImageSize(m_hWnd, CSize(MIN_WND_WIDTH, MIN_WND_HEIGHT), HUGE_SIZE, dZoom, m_pCurrentImage, false, true, m_bWindowBorderless);
+				CRect windowRect = Helpers::GetWindowRectMatchingImageSize(
+					m_hWnd, CSize(MIN_WND_WIDTH, MIN_WND_HEIGHT), HUGE_SIZE, dZoom, m_pCurrentImage, false, true, m_bWindowBorderless);
 
 				// don't try to adjust for an image that isn't loaded!
 				if (m_pCurrentImage != NULL)
@@ -1801,9 +1815,13 @@ void CMainDlg::ExecuteCommand(int nCommand) {
 					// it causes the window to shift up one pixel at a time when going between borderless and not borderless repeatedly
 					// in other cases, it shifts downwards depending on rounding errors resizing the window and image... hard to hunt down but it's as good as it can get right now
 					if (windowCaptionHeight % 2 == 0) {
-						newTop = m_bWindowBorderless ? windowRect.top + (windowCaptionHeight / 2) : windowRect.top - (windowCaptionHeight / 2);
+						newTop = m_bWindowBorderless ?
+							windowRect.top + (windowCaptionHeight / 2) :
+							windowRect.top - (windowCaptionHeight / 2);
 					} else {
-						newTop = m_bWindowBorderless ? windowRect.top + (windowCaptionHeight / 2) : windowRect.top - (windowCaptionHeight / 2) + 1;
+						newTop = m_bWindowBorderless ?
+							windowRect.top + (windowCaptionHeight / 2) :
+							windowRect.top - (windowCaptionHeight / 2) + 1;
 					}
 
 					// tell the window the Frame has changed, not sure if it makes a difference
@@ -1821,14 +1839,7 @@ void CMainDlg::ExecuteCommand(int nCommand) {
 
 			break;
 		case IDM_ALWAYS_ON_TOP:
-			m_bAlwaysOnTop = !m_bAlwaysOnTop;
-
-			// SetWindowPos - https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setwindowpos
-			this->SetWindowPos(
-				m_bAlwaysOnTop ? HWND_TOPMOST : HWND_NOTOPMOST,
-				0, 0, 0, 0,
-				SWP_NOMOVE | SWP_NOSIZE  // causes SetWindowPos to ignore the parameters for top/left/width/height
-			);
+			ToggleAlwaysOnTop();
 
 			break;
 		case IDM_FIT_WINDOW_TO_IMAGE:
@@ -3231,8 +3242,11 @@ void CMainDlg::UpdateWindowTitle() {
 		sWindowText += Helpers::GetMultiframeIndex(m_pCurrentImage);
 		if (CSettingsProvider::This().ShowEXIFDateInTitle()) {
 			CEXIFReader* pEXIF = m_pCurrentImage->GetEXIFReader();
+			CRawMetadata* pRawMetadata = m_pCurrentImage->GetRawMetadata();
 			if (pEXIF != NULL && pEXIF->GetAcquisitionTime().wYear > 1600) {
 				sWindowText += " - " + Helpers::SystemTimeToString(pEXIF->GetAcquisitionTime());
+			} else if (pRawMetadata != NULL && pRawMetadata->GetAcquisitionTime().wYear > 1985) {
+				sWindowText += " - " + Helpers::SystemTimeToString(pRawMetadata->GetAcquisitionTime());
 			}
 		}
 		sWindowText += " - " + CString(JPEGVIEW_TITLE);
@@ -3331,8 +3345,7 @@ void CMainDlg::AnimateTransition() {
 
 	int nSteps = max(1, (m_nTransitionTime + 20) / nFrameTimeMs);
 
-	BLENDFUNCTION blendFunc;
-	memset(&blendFunc, 0, sizeof(blendFunc));
+	BLENDFUNCTION blendFunc{ 0 };
 	blendFunc.BlendOp = AC_SRC_OVER;
 	blendFunc.AlphaFormat = 0;
 	float fAlphaStep = 255.0f / nSteps;
@@ -3470,15 +3483,22 @@ void CMainDlg::StartAnimation() {
 	m_bLDC = false;
 	m_bLandscapeMode = false;
 	m_bIsAnimationPlaying = true;
-	::SetTimer(this->m_hWnd, ANIMATION_TIMER_EVENT_ID, max(10, m_pCurrentImage->FrameTimeMs()), NULL);
+	int nNewFrameTime = max(10, m_pCurrentImage->FrameTimeMs());
+	::SetTimer(this->m_hWnd, ANIMATION_TIMER_EVENT_ID, nNewFrameTime, NULL);
 	m_pNavPanelCtl->EndNavPanelAnimation();
 	m_nLastSlideShowImageTickCount = ::GetTickCount();
+	m_nLastAnimationOffset = 0;
+	m_nExpectedNextAnimationTickCount = ::GetTickCount() + nNewFrameTime;
 }
 
 void CMainDlg::AdjustAnimationFrameTime() {
 	// restart timer with new frame time
 	::KillTimer(this->m_hWnd, ANIMATION_TIMER_EVENT_ID);
-	::SetTimer(this->m_hWnd, ANIMATION_TIMER_EVENT_ID, max(10, m_pCurrentImage->FrameTimeMs()), NULL);
+	m_nLastAnimationOffset += ::GetTickCount() - m_nExpectedNextAnimationTickCount;
+	m_nLastAnimationOffset = min(m_nLastAnimationOffset, max(100, m_pCurrentImage->FrameTimeMs())); // prevent offset from getting too big
+	int nNewFrameTime = max(10, m_pCurrentImage->FrameTimeMs() - max(0, m_nLastAnimationOffset));
+	m_nExpectedNextAnimationTickCount = ::GetTickCount() + max(10, m_pCurrentImage->FrameTimeMs());
+	::SetTimer(this->m_hWnd, ANIMATION_TIMER_EVENT_ID, nNewFrameTime, NULL);
 }
 
 void CMainDlg::StopAnimation() {
@@ -3499,4 +3519,17 @@ void CMainDlg::StopAnimation() {
 	}
 	::KillTimer(this->m_hWnd, ANIMATION_TIMER_EVENT_ID);
 	m_bIsAnimationPlaying = false;
+}
+
+void CMainDlg::ToggleAlwaysOnTop() {
+	// toggle the member variable and call the SetWindowPos to set
+	m_bAlwaysOnTop = !m_bAlwaysOnTop;
+
+	// SetWindowPos - https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setwindowpos
+	this->SetWindowPos(
+		m_bAlwaysOnTop ? HWND_TOPMOST : HWND_NOTOPMOST,
+		0, 0, 0, 0,
+		SWP_NOMOVE | SWP_NOSIZE  // causes SetWindowPos to ignore the parameters for top/left/width/height
+	);
+
 }

@@ -15,13 +15,14 @@ JPEGView is a lean, fast and highly configurable image viewer/editor with a mini
 JPEGView has built-in support the following formats:
 
 * Popular: JPEG, GIF
-* Lossless: BMP, PNG, TIFF
+* Lossless: BMP, PNG, TIFF, PSD
 * Web: WEBP, JXL, HEIF/HEIC, AVIF
 * Legacy: TGA, WDP, HDP, JXR
 * Camera RAW formats:
-  * Adobe (DNG), Canon (CRW, CR2), Nikon (NEF, NRW), Sony (ARW, SR2)
+  * Adobe (DNG), Canon (CRW, CR2, CR3), Nikon (NEF, NRW), Sony (ARW, SR2)
   * Olympus (ORF), Panasonic (RW2), Fujifilm (RAF)
-  * Sigma (X3F), Pentax (PEF),  Minolta (MRW), Kodak (KDC, DCR)
+  * Sigma (X3F), Pentax (PEF), Minolta (MRW), Kodak (KDC, DCR)
+  * A full list is available here: [LibRaw supported cameras](https://www.libraw.org/supported-cameras)
 
 Many additional formats are supported by Windows Imaging Component (WIC)
 
@@ -120,11 +121,12 @@ After installation, the configuration file is located at `%UserProfile%\scoop\pe
 
 By default, the language is auto-detected to match your Windows Locale.  All the text in the menus and user interface should show in your language.  To override the auto-detection, manually set `Language` option in `JPEGView.ini`
 
-JPEGView is currently translated/localized to 27 languages:
+JPEGView is currently translated/localized to 28 languages:
 
 | INI Option | Language |
 | ---------- | -------- |
 | be | Belarusian |
+| bg | Bulgarian |
 | cs | Czech |
 | de | German |
 | el | Greek, Modern |
@@ -177,5 +179,7 @@ Special thanks to [qbnu](https://github.com/qbnu) for adding additional codec su
 * HEIF/HEIC/AVIF support
 * QOI support
 * ICC Profile support for WebP, JPEG XL, HEIF/HEIC, AVIF
+* LibRaw support (all updated RAW formats, such as CR3)
+* Photoshop PSD support
 
-Thanks to all the translators which keep JPEGView strings up-to-date in different languages!  See [CHANGELOG.txt](https://github.com/sylikc/jpegview/blob/master/CHANGELOG.txt) to find credits for translators at each release!
+Thanks to all the _translators_ which keep JPEGView strings up-to-date in different languages!  See [CHANGELOG.txt](https://github.com/sylikc/jpegview/blob/master/CHANGELOG.txt) to find credits for translators at each release!

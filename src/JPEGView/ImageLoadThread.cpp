@@ -16,9 +16,11 @@
 #include "JXLWrapper.h"
 #include "HEIFWrapper.h"
 #include "AVIFWrapper.h"
+#include "RAWWrapper.h"
 #endif
 #include "WEBPWrapper.h"
 #include "QOIWrapper.h"
+#include "PSDWrapper.h"
 #include "MaxImageDef.h"
 
 
@@ -26,34 +28,6 @@ using namespace Gdiplus;
 
 // static initializers
 volatile int CImageLoadThread::m_curHandle = 0;
-
-// pixel is ARGB, backgroundColor is BGR. Returns ARGB
-static inline uint32 WebpAlphaBlendBackground(uint32 pixel, COLORREF backgroundColor)
-{
-	uint32 alpha = pixel & 0xFF000000;
-	if (alpha == 0xFF000000)
-		return pixel;
-
-	uint8 bg_r = GetRValue(backgroundColor);
-	uint8 bg_g = GetGValue(backgroundColor);
-	uint8 bg_b = GetBValue(backgroundColor);
-
-	if (alpha == 0) {
-		return (bg_r << 16) + (bg_g << 8) + (bg_b);
-	} else {
-		uint8 r = (pixel >> 16) & 0xFF;
-		uint8 g = (pixel >>  8) & 0xFF;
-		uint8 b = (pixel      ) & 0xFF;
-		uint8 a = alpha >> 24;
-		uint8 one_minus_a = 255 - a;
-
-		return
-			0xFF000000 + 
-			(  (uint8)(((r * a + bg_r * one_minus_a) / 255.0) + 0.5) << 16) +
-			(  (uint8)(((g * a + bg_g * one_minus_a) / 255.0) + 0.5) <<  8) + 
-			(  (uint8)(((b * a + bg_b * one_minus_a) / 255.0) + 0.5)      );
-	}
-}
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 // static helpers
@@ -101,24 +75,19 @@ static EImageFormat GetImageFormat(LPCTSTR sFileName) {
 	//	return IF_TIFF;
 
 	} else if (header[0] == 0x00 && header[1] == 0x00 && header[2] == 0x00 && memcmp(header+4, "ftyp", 4) == 0) {
-		if (memcmp(header + 8, "avif", 4) == 0 || memcmp(header + 8, "avis", 4) == 0)
-			return IF_AVIF;
-
 		// https://github.com/strukturag/libheif/issues/83
-		if (memcmp(header + 8, "heic", 4) == 0 ||
-			memcmp(header + 8, "heix", 4) == 0 ||
-			memcmp(header + 8, "hevc", 4) == 0 ||
-			memcmp(header + 8, "hevx", 4) == 0 ||
-			memcmp(header + 8, "heim", 4) == 0 ||
-			memcmp(header + 8, "heis", 4) == 0 ||
-			memcmp(header + 8, "hevm", 4) == 0 ||
-			memcmp(header + 8, "hevs", 4) == 0 ||
-			memcmp(header + 8, "mif1", 4) == 0 ||
-			memcmp(header + 8, "msf1", 4) == 0) {
+		// https://github.com/strukturag/libheif/blob/ce1e4586b6222588c5afcd60c7ba9caa86bcc58c/libheif/heif.h#L602-L805
+
+		// H265: heic, heix, hevc, hevx, heim, heis, hevm, hevs
+		if (header[8] == 'h' && header[9] == 'e')
 			return IF_HEIF;
-		}
+		// AV1: avif, avis
+		// Unspecified encoding: mif1, mif2, msf1, miaf, 1pic
+		return IF_AVIF; // try libavif, fallback to libheif
 	} else if (header[0] == 'q' && header[1] == 'o' && header[2] == 'i' && header[3] == 'f') {
 		return IF_QOI;
+	} else if (header[0] == '8' && header[1] == 'B' && header[2] == 'P' && header[3] == 'S') {
+		return IF_PSD;
 	}
 
 	// default fallback if no matches based on magic bytes
@@ -126,8 +95,7 @@ static EImageFormat GetImageFormat(LPCTSTR sFileName) {
 }
 
 static EImageFormat GetBitmapFormat(Gdiplus::Bitmap * pBitmap) {
-	GUID guid;
-	memset(&guid, 0, sizeof(GUID));
+	GUID guid{ 0 };
 	pBitmap->GetRawFormat(&guid);
 	if (guid == Gdiplus::ImageFormatBMP) {
 		return IF_WindowsBMP;
@@ -382,14 +350,13 @@ void CImageLoadThread::ProcessRequest(CRequestBase& request) {
 			DeleteCachedAvifDecoder();
 			ProcessReadHEIFRequest(&rq);
 			break;
-#endif
-		case IF_QOI:
+		case IF_PSD:
 			DeleteCachedGDIBitmap();
 			DeleteCachedWebpDecoder();
 			DeleteCachedPngDecoder();
 			DeleteCachedJxlDecoder();
 			DeleteCachedAvifDecoder();
-			ProcessReadQOIRequest(&rq);
+			ProcessReadPSDRequest(&rq);
 			break;
 		case IF_CameraRAW:
 			DeleteCachedGDIBitmap();
@@ -398,6 +365,15 @@ void CImageLoadThread::ProcessRequest(CRequestBase& request) {
 			DeleteCachedJxlDecoder();
 			DeleteCachedAvifDecoder();
 			ProcessReadRAWRequest(&rq);
+			break;
+#endif
+		case IF_QOI:
+			DeleteCachedGDIBitmap();
+			DeleteCachedWebpDecoder();
+			DeleteCachedPngDecoder();
+			DeleteCachedJxlDecoder();
+			DeleteCachedAvifDecoder();
+			ProcessReadQOIRequest(&rq);
 			break;
 		case IF_WIC:
 			DeleteCachedGDIBitmap();
@@ -644,7 +620,7 @@ void CImageLoadThread::ProcessReadWEBPRequest(CRequest * request) {
 				// Multiply alpha value into each AABBGGRR pixel
 				uint32* pImage32 = (uint32*)pPixelData;
 				for (int i = 0; i < nWidth * nHeight; i++)
-					*pImage32++ = WebpAlphaBlendBackground(*pImage32, CSettingsProvider::This().ColorTransparency());
+					*pImage32++ = Helpers::AlphaBlendBackground(*pImage32, CSettingsProvider::This().ColorTransparency());
 
 				if (bHasAnimation) {
 					m_sLastWebpFileName = sFileName;
@@ -724,7 +700,7 @@ void CImageLoadThread::ProcessReadPNGRequest(CRequest* request) {
 				// Multiply alpha value into each AABBGGRR pixel
 				uint32* pImage32 = (uint32*)pPixelData;
 				for (int i = 0; i < nWidth * nHeight; i++)
-					*pImage32++ = WebpAlphaBlendBackground(*pImage32, CSettingsProvider::This().ColorTransparency());
+					*pImage32++ = Helpers::AlphaBlendBackground(*pImage32, CSettingsProvider::This().ColorTransparency());
 
 				request->Image = new CJPEGImage(nWidth, nHeight, pPixelData, pEXIFData, 4, 0, IF_PNG, bHasAnimation, request->FrameIndex, nFrameCount, nFrameTimeMs);
 				free(pEXIFData);
@@ -799,7 +775,7 @@ void CImageLoadThread::ProcessReadJXLRequest(CRequest* request) {
 				// Multiply alpha value into each AABBGGRR pixel
 				uint32* pImage32 = (uint32*)pPixelData;
 				for (int i = 0; i < nWidth * nHeight; i++)
-					*pImage32++ = WebpAlphaBlendBackground(*pImage32, CSettingsProvider::This().ColorTransparency());
+					*pImage32++ = Helpers::AlphaBlendBackground(*pImage32, CSettingsProvider::This().ColorTransparency());
 
 				request->Image = new CJPEGImage(nWidth, nHeight, pPixelData, pEXIFData, 4, 0, IF_JXL, bHasAnimation, request->FrameIndex, nFrameCount, nFrameTimeMs);
 				free(pEXIFData);
@@ -873,7 +849,7 @@ void CImageLoadThread::ProcessReadAVIFRequest(CRequest* request) {
 				// Multiply alpha value into each AABBGGRR pixel
 				uint32* pImage32 = (uint32*)pPixelData;
 				for (int i = 0; i < nWidth * nHeight; i++)
-					*pImage32++ = WebpAlphaBlendBackground(*pImage32, CSettingsProvider::This().ColorTransparency());
+					*pImage32++ = Helpers::AlphaBlendBackground(*pImage32, CSettingsProvider::This().ColorTransparency());
 
 				request->Image = new CJPEGImage(nWidth, nHeight, pPixelData, pEXIFData, 4, 0, IF_AVIF, bHasAnimation, request->FrameIndex, nFrameCount, nFrameTimeMs);
 				free(pEXIFData);
@@ -934,7 +910,7 @@ void CImageLoadThread::ProcessReadHEIFRequest(CRequest* request) {
 				// Multiply alpha value into each AABBGGRR pixel
 				uint32* pImage32 = (uint32*)pPixelData;
 				for (int i = 0; i < nWidth * nHeight; i++)
-					*pImage32++ = WebpAlphaBlendBackground(*pImage32, CSettingsProvider::This().ColorTransparency());
+					*pImage32++ = Helpers::AlphaBlendBackground(*pImage32, CSettingsProvider::This().ColorTransparency());
 
 				request->Image = new CJPEGImage(nWidth, nHeight, pPixelData, pEXIFData, nBPP, 0, IF_HEIF, false, request->FrameIndex, nFrameCount, nFrameTimeMs);
 				free(pEXIFData);
@@ -953,6 +929,14 @@ void CImageLoadThread::ProcessReadHEIFRequest(CRequest* request) {
 	::CloseHandle(hFile);
 	delete[] pBuffer;
 }
+
+void CImageLoadThread::ProcessReadPSDRequest(CRequest* request) {
+	request->Image = PsdReader::ReadImage(request->FileName, request->OutOfMemory);
+	if (request->Image == NULL && !request->OutOfMemory) {
+		request->Image = PsdReader::ReadThumb(request->FileName, request->OutOfMemory);
+	}
+}
+
 #endif
 
 void CImageLoadThread::ProcessReadQOIRequest(CRequest* request) {
@@ -987,7 +971,7 @@ void CImageLoadThread::ProcessReadQOIRequest(CRequest* request) {
 					// Multiply alpha value into each AABBGGRR pixel
 					uint32* pImage32 = (uint32*)pPixelData;
 					for (int i = 0; i < nWidth * nHeight; i++)
-						*pImage32++ = WebpAlphaBlendBackground(*pImage32, CSettingsProvider::This().ColorTransparency());
+						*pImage32++ = Helpers::AlphaBlendBackground(*pImage32, CSettingsProvider::This().ColorTransparency());
 				}
 				request->Image = new CJPEGImage(nWidth, nHeight, pPixelData, NULL, nBPP, 0, IF_QOI, false, 0, 1, 0);
 			}
@@ -1004,7 +988,28 @@ void CImageLoadThread::ProcessReadQOIRequest(CRequest* request) {
 void CImageLoadThread::ProcessReadRAWRequest(CRequest * request) {
 	bool bOutOfMemory = false;
 	try {
-		request->Image = CReaderRAW::ReadRawImage(request->FileName, bOutOfMemory);
+		int fullsize = CSettingsProvider::This().DisplayFullSizeRAW();
+
+#ifndef WINXP
+		// Try with libraw
+		UINT nPrevErrorMode = SetErrorMode(SEM_FAILCRITICALERRORS);
+		try {
+			if (fullsize == 2 || fullsize == 3) {
+				request->Image = RawReader::ReadImage(request->FileName, bOutOfMemory, fullsize == 2);
+			}
+			if (request->Image == NULL) {
+				request->Image = RawReader::ReadImage(request->FileName, bOutOfMemory, fullsize == 0 || fullsize == 3);
+			}
+		} catch (...) {
+			// libraw.dll not found or VC++ Runtime not installed
+		}
+		SetErrorMode(nPrevErrorMode);
+#endif
+
+		// Try with dcraw_mod
+		if (request->Image == NULL && fullsize != 1) {
+			request->Image = CReaderRAW::ReadRawImage(request->FileName, bOutOfMemory);
+		}
 	} catch (...) {
 		delete request->Image;
 		request->Image = NULL;

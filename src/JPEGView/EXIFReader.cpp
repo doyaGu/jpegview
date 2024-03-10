@@ -242,9 +242,10 @@ bool CEXIFReader::ParseDateString(SYSTEMTIME & date, const CString& str) {
 }
 
 CEXIFReader::CEXIFReader(void* pApp1Block, EImageFormat eImageFormat)
-: m_exposureTime(0, 0) {
-
-	memset(&m_acqDate, 0, sizeof(SYSTEMTIME));
+	: m_exposureTime{ 0, 0 },
+	m_acqDate{ 0 },
+	m_dateTime{ 0 }
+{
 	m_bFlashFired = false;
 	m_bFlashFlagPresent = false;
 	m_dFocalLength = m_dExposureBias = m_dFNumber = UNKNOWN_DOUBLE_VALUE;
@@ -326,6 +327,14 @@ CEXIFReader::CEXIFReader(void* pApp1Block, EImageFormat eImageFormat)
 			}
 		}
 	}
+
+	uint8* pTagSoftware = FindTag(pIFD0, pLastIFD0, 0x0131, bLittleEndian);
+	ReadStringTag(m_sSoftware, pTagSoftware, pTIFFHeader, bLittleEndian);
+
+	uint8* pTagModDate = FindTag(pIFD0, pLastIFD0, 0x0132, bLittleEndian);
+	CString sModDate;
+	ReadStringTag(sModDate, pTagModDate, pTIFFHeader, bLittleEndian);
+	ParseDateString(m_dateTime, sModDate);
 
 	uint8* pTagEXIFIFD = FindTag(pIFD0, pLastIFD0, 0x8769, bLittleEndian);
 	if (pTagEXIFIFD == NULL) {
@@ -507,6 +516,10 @@ void CEXIFReader::ReadGPSData(uint8* pTIFFHeader, uint8* pTagGPSIFD, int nApp1Si
 	uint8* pTagAltitude = FindTag(pGPSIFD, pLastGPS, 0x6, bLittleEndian);
 	if (pTagAltitude != NULL) {
 		m_dAltitude = ReadDoubleTag(pTagAltitude, pTIFFHeader, bLittleEndian);
+		uint8* pTagAltitudeRef = FindTag(pGPSIFD, pLastGPS, 0x5, bLittleEndian);
+		if (pTagAltitudeRef != NULL && *(pTagAltitudeRef + 8) == 1) {
+			m_dAltitude *= -1;
+		}
 	}
 }
 

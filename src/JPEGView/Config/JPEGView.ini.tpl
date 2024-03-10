@@ -25,7 +25,14 @@ FilesProcessedByWIC=*.wdp;*.hdp;*.jxr
 
 ; File endings of camera RAW files to be searched for embedded JPEG thumb images to display
 ; Reading just these embedded JPEGs is much faster than decoding the RAW using WIC
-FileEndingsRAW=*.pef;*.dng;*.crw;*.nef;*.cr2;*.mrw;*.rw2;*.orf;*.x3f;*.arw;*.kdc;*.nrw;*.dcr;*.sr2;*.raf
+FileEndingsRAW=*.pef;*.dng;*.crw;*.nef;*.cr2;*.mrw;*.rw2;*.orf;*.x3f;*.arw;*.kdc;*.nrw;*.dcr;*.sr2;*.raf;*.kc2;*.erf;*.3fr;*.raw;*.mef;*.mos;*.mdc;*.cr3
+
+; Set behavior for opening RAW files listed in FileEndingsRAW
+; 0: open embedded thumbnail
+; 1: open full size
+; 2: open thumbnail, fallback to full size
+; 3: open full size, fallback to thumbnail
+DisplayFullSizeRAW=0
 
 ; Set to true to keep the zoom, pan, contrast, gamma, sharpen and rotation setting between the images
 KeepParameters=false
@@ -139,6 +146,14 @@ StickyWindowRect=
 
 ; Minimal window size in windowed mode (in pixels)
 MinimalWindowSize=320 240
+
+; If set to 'true', window starts in borderless mode (title bar hidden, cannot be manually resized)
+; The window mode can be changed after startup
+WindowBorderlessOnStartup=false
+
+; If set to 'true', window starts in always-on-top mode (window will always be visible on top of other windows)
+; The window mode can be changed after startup
+WindowAlwaysOnTopOnStartup=false
 
 ; -----------------------------------------------
 ; - IMAGE CONTROL PANELS

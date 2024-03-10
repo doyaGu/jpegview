@@ -126,6 +126,8 @@ void CEXIFDisplayCtl::FillEXIFDataDisplay() {
 			}
 			if (pEXIFReader->GetAcquisitionTimePresent()) {
 				m_pEXIFDisplay->AddLine(CNLS::GetString(_T("Acquisition date:")), pEXIFReader->GetAcquisitionTime());
+			} else if (pEXIFReader->GetDateTimePresent()) {
+				m_pEXIFDisplay->AddLine(CNLS::GetString(_T("Exif Date Time:")), pEXIFReader->GetDateTime());
 			} else {
 				const FILETIME* pFileTime = pFileList->CurrentModificationTime();
 				if (pFileTime != NULL) {
@@ -161,6 +163,9 @@ void CEXIFDisplayCtl::FillEXIFDataDisplay() {
 			if (pEXIFReader->GetISOSpeedPresent()) {
 				m_pEXIFDisplay->AddLine(CNLS::GetString(_T("ISO Speed:")), (int)pEXIFReader->GetISOSpeed());
 			}
+			if (pEXIFReader->GetSoftwarePresent()) {
+				m_pEXIFDisplay->AddLine(CNLS::GetString(_T("Software:")), pEXIFReader->GetSoftware());
+			}
 		}
 		else if (pRawMetaData != NULL) {
 			if (pRawMetaData->GetAcquisitionTime().wYear > 1985) {
@@ -170,6 +175,14 @@ void CEXIFDisplayCtl::FillEXIFDataDisplay() {
 				const FILETIME* pFileTime = pFileList->CurrentModificationTime();
 				if (pFileTime != NULL) {
 					m_pEXIFDisplay->AddLine(CNLS::GetString(_T("Modification date:")), *pFileTime);
+				}
+			}
+			if (pRawMetaData->IsGPSInformationPresent()) {
+				CString sGPSLocation = CreateGPSString(pRawMetaData->GetGPSLatitude(), pRawMetaData->GetGPSLongitude());
+				m_pEXIFDisplay->SetGPSLocation(sGPSLocation, CreateGPSURL(pRawMetaData->GetGPSLatitude(), pRawMetaData->GetGPSLongitude()));
+				m_pEXIFDisplay->AddLine(CNLS::GetString(_T("Location:")), sGPSLocation, true);
+				if (pRawMetaData->IsGPSAltitudePresent()) {
+					m_pEXIFDisplay->AddLine(CNLS::GetString(_T("Altitude (m):")), pRawMetaData->GetGPSAltitude(), 0);
 				}
 			}
 			if (pRawMetaData->GetManufacturer()[0] != 0) {

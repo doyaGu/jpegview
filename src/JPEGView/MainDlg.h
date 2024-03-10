@@ -301,6 +301,8 @@ private:
 	bool m_bMouseOn;
 	bool m_bKeepParametersBeforeAnimation;
 	bool m_bIsAnimationPlaying;
+	int m_nLastAnimationOffset;
+	int m_nExpectedNextAnimationTickCount;
 	int m_nMonitor;
 	WINDOWPLACEMENT m_storedWindowPlacement;
 	CRect m_monitorRect;
@@ -379,4 +381,5 @@ private:
 	void StartAnimation();
 	void AdjustAnimationFrameTime();
 	void StopAnimation();
+	void ToggleAlwaysOnTop();
 };

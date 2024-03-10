@@ -753,7 +753,7 @@ EImageFormat GetImageFormat(LPCTSTR sFileName) {
 	LPCTSTR sEnding = _tcsrchr(sFileName, _T('.'));
 	if (sEnding != NULL) {
 		sEnding += 1;
-		if (_tcsicmp(sEnding, _T("JPG")) == 0 || _tcsicmp(sEnding, _T("JPEG")) == 0) {
+		if (_tcsicmp(sEnding, _T("JPG")) == 0 || _tcsicmp(sEnding, _T("JPEG")) == 0 || _tcsicmp(sEnding, _T("JFIF")) == 0) {
 			return IF_JPEG;
 		} else if (_tcsicmp(sEnding, _T("BMP")) == 0) {
 			return IF_WindowsBMP;
@@ -773,6 +773,8 @@ EImageFormat GetImageFormat(LPCTSTR sFileName) {
 			return IF_TGA;
 		} else if (_tcsicmp(sEnding, _T("QOI")) == 0) {
 			return IF_QOI;
+		} else if (_tcsicmp(sEnding, _T("PSD")) == 0) {
+			return IF_PSD;
 		} else if (IsInFileEndingList(CSettingsProvider::This().FilesProcessedByWIC(), sEnding)) {
 			return IF_WIC;
 		} else if (IsInFileEndingList(CSettingsProvider::This().FileEndingsRAW(), sEnding)) {

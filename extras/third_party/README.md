@@ -7,7 +7,7 @@ The compiled binaries to these sources are included in JPEGView source, so these
 To clone all the versions specified, use the following command:
 `git submodule update --init --recursive`
 
-_FYI: Each submodule depedency has a build script located in `extras\scripts`.  The build instructions below may possibly be outdated._
+_FYI: Each submodule depedency has a build script located in `extras\scripts`.  Any build instructions below are likely to be outdated._
 
 A brief description along with the licenses for each are included below.  Some have their own submodules or linked libraries.
 
@@ -155,3 +155,11 @@ Quite OK Image Format
 License: [MIT License](https://github.com/phoboslab/qoi/blob/master/LICENSE)
 
 QOI source is directly compiled into JPEGView with no binary dependencies.  This submodule indicates the version that is included in JPEGView.
+
+## LibRaw
+
+LibRaw - Library for reading and processing of RAW digicam images
+
+It is built and included in `src\JPEGView\libraw`
+
+License: Either [GNU Lesser General Public License v2.1](https://github.com/LibRaw/LibRaw/blob/master/LICENSE.LGPL) or [Common Development and Distribution License (CDDL) v1.0](https://github.com/LibRaw/LibRaw/blob/master/LICENSE.CDDL)
